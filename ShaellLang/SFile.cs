@@ -65,7 +65,7 @@ public class SFile : NativeTable, IValue
 
     public Number ToNumber() => throw new Exception("Type error, File cannot be convert to number.");
 
-    public IFunction ToFunction() => new SProcess();
+    public IFunction ToFunction() => new SProcess(_path);
 
     public SString ToSString() => new (_path);
 
