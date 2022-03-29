@@ -41,7 +41,10 @@ public class UserFunc : IFunction
         }
 
         var executioner = new ExecutionVisitor(_globalScope, activeScopeManager);
-        return executioner.VisitStmts(_funcStmts);
+
+        var jo = new JobObject(executioner.VisitStmts(_funcStmts));
+
+        return jo;
     }
 
     public uint ArgumentCount => 0;
