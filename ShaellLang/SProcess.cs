@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using System.Diagnostics;
 using System.Threading.Tasks;
 
@@ -56,12 +57,12 @@ public class SProcess : IFunction
         });
         return jo;*/
     }
+    
     IFunction IValue.ToFunction() => this;
     public bool ToBool() => throw new System.NotImplementedException();
     public Number ToNumber() => throw new System.NotImplementedException();
     public IFunction ToFunction => throw new System.NotImplementedException();
     public SString ToSString() => throw new System.NotImplementedException();
     public ITable ToTable() => throw new System.NotImplementedException();
-
     public uint ArgumentCount { get; }
 }
