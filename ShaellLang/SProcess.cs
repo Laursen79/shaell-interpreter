@@ -1,38 +1,50 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace ShaellLang;
 
 public class SProcess : IFunction
 {
-    public bool ToBool()
+    private Process _process = new Process();
+    private TaskCompletionSource<int> _tcs = new TaskCompletionSource<int>();
+    public SProcess(string file)
     {
-        throw new System.NotImplementedException();
+        _process.StartInfo.FileName = file;
+        _process.EnableRaisingEvents = true;
+        _process.StartInfo.UseShellExecute = true;
+        _process.Exited += Exit_Handled;
+    }
+    private void Exit_Handled(object sender, System.EventArgs e)
+    {
+        _tcs.SetResult(_process.ExitCode);
     }
 
-    public Number ToNumber()
+    private void AddArguments(ICollection<IValue> args)
     {
-        throw new System.NotImplementedException();
+        foreach (var arg in args)
+        {
+            AddArg(arg.ToSString().Val);
+        }
     }
 
-    public IFunction ToFunction()
+    private Task<int> RunAsync()
     {
-        throw new System.NotImplementedException();
+        _process.Start();
+        return _tcs.Task;
     }
+    
+    private void AddArg(string str) => _process.StartInfo.ArgumentList.Add(str);
+    public void Dispose() => _process.Dispose();
 
-    public SString ToSString()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public ITable ToTable()
-    {
-        throw new System.NotImplementedException();
-    }
 
     public IValue Call(ICollection<IValue> args)
     {
-        var jo = JobObject.Factory.ProcessCall(() =>
+        AddArguments(args);
+        var task = RunAsync();
+        return this;
+        /*var jo = JobObject.Factory.ProcessCall(() =>
         {
             int x = 0;
             for (int i = 0; i < 1000; i++)
@@ -42,8 +54,14 @@ public class SProcess : IFunction
 
             return x;
         });
-        return jo;
+        return jo;*/
     }
+    IFunction IValue.ToFunction() => this;
+    public bool ToBool() => throw new System.NotImplementedException();
+    public Number ToNumber() => throw new System.NotImplementedException();
+    public IFunction ToFunction => throw new System.NotImplementedException();
+    public SString ToSString() => throw new System.NotImplementedException();
+    public ITable ToTable() => throw new System.NotImplementedException();
 
     public uint ArgumentCount { get; }
 }
