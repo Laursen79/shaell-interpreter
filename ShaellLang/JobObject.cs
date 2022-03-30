@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -13,43 +14,55 @@ public class JobObject : NativeTable, IValue
         set => SetValue("value", value);
     }
 
-    public StreamReader In { get; set; }
-    public StreamWriter Out { get; set; }
-    public StreamReader Error { get; set; }
+    private IValue Out
+    {
+        get => GetValue(new SString("out"));
+        set => SetValue("out", value);
+    }
+    
+    private IValue Err
+    {
+        get => GetValue(new SString("err"));
+        set => SetValue("err", value);
+    }
 
-    private Task<int> _process;
+    private readonly Process _process;
 
-    public JobObject(IValue value)
+    public JobObject(IValue value) : this()
     {
         SetValue("value", value);
     }
 
-    private JobObject(){}
+    private JobObject(Process process) : this()
+    {
+        _process = process;
+    }
+
+    private JobObject()
+    {
+        SetValue("out", new SNull());
+        SetValue("value", new SNull());
+        SetValue("err", new SNull());
+    }
 
     public static class Factory
     {
-        public static JobObject ProcessCall(Func<ICollection<IValue>, int> process, ICollection<IValue> args)
+        public static JobObject StartProcess(Process process)
         {
-            var func = new Func<object, int>(values => process.Invoke(values as ICollection<IValue>));
-            var jo = new JobObject
-            {
-                _process = Task.Factory.StartNew(func, args)
-            };
-            jo.Value = new Number(jo._process.Result);
-            
+            var jo = new JobObject(process);
+            process.Exited += (sender, args) => jo.Value = new Number(process.ExitCode);
+            process.EnableRaisingEvents = true;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+
+            process.Start();
+            process.WaitForExit();
+            jo.Out = new SString(process.StandardOutput.ReadToEnd());
+            jo.Err = new SString(process.StandardError.ReadToEnd());
+
             return jo;
         }
-        public static JobObject ProcessCall(Func<int> process)
-        {
-            var jo = new JobObject
-            {
-                _process = Task.Factory.StartNew(process)
-            };
-            jo.Value = new Number(jo._process.Result);
-            
-            return jo;
-        }
-        
     }
 
     public bool ToBool()

@@ -12,8 +12,6 @@ public class SProcess : IFunction
     public SProcess(string file)
     {
         _process.StartInfo.FileName = file;
-        _process.EnableRaisingEvents = true;
-        _process.StartInfo.UseShellExecute = true;
     }
 
     private void AddArguments(ICollection<IValue> args)
@@ -26,23 +24,16 @@ public class SProcess : IFunction
 
     private void AddArg(string str) => _process.StartInfo.ArgumentList.Add(str);
     public void Dispose() => _process.Dispose();
-    
+
+    private JobObject Run(Process process)
+    {
+        return JobObject.Factory.StartProcess(process);
+    }
+
     public IValue Call(ICollection<IValue> args)
     {
         AddArguments(args);
-        _process.Start();
-        return this;
-        /*var jo = JobObject.Factory.ProcessCall(() =>
-        {
-            int x = 0;
-            for (int i = 0; i < 1000; i++)
-            {
-                x += i + 3;
-            }
-
-            return x;
-        });
-        return jo;*/
+        return Run(_process);
     }
     
     IFunction IValue.ToFunction() => this;
