@@ -9,17 +9,11 @@ namespace ShaellLang;
 public class SProcess : IFunction
 {
     private Process _process = new Process();
-    private TaskCompletionSource<int> _tcs = new TaskCompletionSource<int>();
     public SProcess(string file)
     {
         _process.StartInfo.FileName = file;
         _process.EnableRaisingEvents = true;
         _process.StartInfo.UseShellExecute = true;
-        _process.Exited += Exit_Handled;
-    }
-    private void Exit_Handled(object sender, System.EventArgs e)
-    {
-        _tcs.SetResult(_process.ExitCode);
     }
 
     private void AddArguments(ICollection<IValue> args)
@@ -30,20 +24,13 @@ public class SProcess : IFunction
         }
     }
 
-    private Task<int> RunAsync()
-    {
-        _process.Start();
-        return _tcs.Task;
-    }
-    
     private void AddArg(string str) => _process.StartInfo.ArgumentList.Add(str);
     public void Dispose() => _process.Dispose();
-
-
+    
     public IValue Call(ICollection<IValue> args)
     {
         AddArguments(args);
-        var task = RunAsync();
+        _process.Start();
         return this;
         /*var jo = JobObject.Factory.ProcessCall(() =>
         {
