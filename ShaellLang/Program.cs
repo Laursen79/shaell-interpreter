@@ -22,30 +22,38 @@ namespace ShaellLang
             
             var content = File.ReadAllText(filename);
 
-            AntlrInputStream inputStream = new AntlrInputStream(content);
-            ShaellLexer shaellLexer = new ShaellLexer(inputStream);
-            CommonTokenStream commonTokenStream = new CommonTokenStream(shaellLexer);
-            ShaellParser shaellParser = new ShaellParser(commonTokenStream);
-            
-            ShaellParser.ProgContext progContext = shaellParser.prog();
-            var executer = new ExecutionVisitor();
-            executer.SetGlobal("$print", new NativeFunc(delegate(ICollection<IValue> args)
+            try
             {
-                foreach (var value in args)
+                AntlrInputStream inputStream = new AntlrInputStream(content);
+                ShaellLexer shaellLexer = new ShaellLexer(inputStream);
+                shaellLexer.AddErrorListener(new ShaellLexerErrorListener());
+                CommonTokenStream commonTokenStream = new CommonTokenStream(shaellLexer);
+                ShaellParser shaellParser = new ShaellParser(commonTokenStream);
+            
+                ShaellParser.ProgContext progContext = shaellParser.prog();
+                var executer = new ExecutionVisitor();
+                executer.SetGlobal("$print", new NativeFunc(delegate(ICollection<IValue> args)
                 {
-                    Console.Write(value.ToSString().Val);
-                }
-                Console.WriteLine();
+                    foreach (var value in args)
+                    {
+                        Console.Write(value.ToSString().Val);
+                    }
+                    Console.WriteLine();
 
-                return new SNull();
-            }, 0));
+                    return new SNull();
+                }, 0));
             
-            executer.SetGlobal("$CreateTable", new NativeFunc(delegate(ICollection<IValue> values)
+                executer.SetGlobal("$CreateTable", new NativeFunc(delegate(ICollection<IValue> values)
+                {
+                    return new UserTable();
+                }, 1));
+            
+                executer.Visit(progContext);
+            }
+            catch (Exception e)
             {
-                return new UserTable();
-            }, 1));
-            
-            executer.Visit(progContext);
+                Console.WriteLine(e.Message);
+            }
             
         }
     }
