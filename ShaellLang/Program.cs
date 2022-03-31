@@ -50,7 +50,7 @@ namespace ShaellLang
             
                 executer.Visit(progContext);
             }
-            catch (Exception e)
+            catch (SyntaxErrorException e)
             {
                 Console.WriteLine(e.Message);
             }
