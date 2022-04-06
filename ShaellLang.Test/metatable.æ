@@ -53,3 +53,4 @@ $A:describe("Test add meta table", $meta_tables_can_be_added)
 $A:describe("Test add meta table with table lib", $meta_tables_can_be_added_with_table_lib)
 $A:describe("Test table entries are shadowed", $meta_table_entries_are_shadowed)
 $A:describe("Test meta table can be replaced", $meta_table_can_be_replaced)
+
