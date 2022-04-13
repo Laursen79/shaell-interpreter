@@ -16,7 +16,6 @@ namespace ShaellLang
 			{
 				AntlrInputStream inputStream = new AntlrInputStream(fileContent);
 				ShaellLexer shaellLexer = new ShaellLexer(inputStream);
-				shaellLexer.AddErrorListener(new ShaellLexerErrorListener());
 				CommonTokenStream commonTokenStream = new CommonTokenStream(shaellLexer);
 				ShaellParser shaellParser = new ShaellParser(commonTokenStream);
 
