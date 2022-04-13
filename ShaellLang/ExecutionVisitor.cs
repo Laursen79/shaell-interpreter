@@ -137,6 +137,46 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
         return null;
     }
 
+    public override IValue VisitForeach(ShaellParser.ForeachContext context)
+    {
+        var v = SafeVisit(context.expr()).Unpack();
+        if(v is IIterable iterable && v is ITable table)
+        {
+            foreach (var key in iterable.GetKeys())
+            {
+                _scopeManager.PushScope(new ScopeContext());
+                _scopeManager.NewTopLevelValue(context.IDENTIFIER().GetText(), table.GetValue(key));
+                var rv = SafeVisit(context.stmts());
+                _scopeManager.PopScope();
+                if (_shouldReturn)
+                    return rv;
+            }
+        }
+
+        return null;
+    }
+
+    public override IValue VisitForeachKeyValue(ShaellParser.ForeachKeyValueContext context)
+    {
+        var v = SafeVisit(context.expr()).Unpack();
+        if(v is IIterable iterable && v is ITable table)
+        {
+            foreach (var key in iterable.GetKeys())
+            {
+                _scopeManager.PushScope(new ScopeContext());
+                _scopeManager.NewTopLevelValue(context.IDENTIFIER(0).GetText(), key);
+                _scopeManager.NewTopLevelValue(context.IDENTIFIER(1).GetText(), table.GetValue(key));
+                var rv = SafeVisit(context.stmts());
+                _scopeManager.PopScope();
+                if (_shouldReturn)
+                {
+                    return rv;
+                }
+            }
+        }
+        return null;
+    }
+
     public override IValue VisitWhileLoop(ShaellParser.WhileLoopContext context)
     {
         _scopeManager.PushScope(new ScopeContext());
