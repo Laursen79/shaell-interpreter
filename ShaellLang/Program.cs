@@ -58,15 +58,7 @@ namespace ShaellLang
             {
                 try
                 {
-                    AntlrInputStream inputStream = new AntlrInputStream(input());
-                    ShaellLexer shaellLexer = new ShaellLexer(inputStream);
-                    shaellLexer.AddErrorListener(new ShaellLexerErrorListener());
-                    CommonTokenStream commonTokenStream = new CommonTokenStream(shaellLexer);
-                    ShaellParser shaellParser = new ShaellParser(commonTokenStream);
-
-                    ShaellParser.ProgContext progContext = shaellParser.prog();
-
-                    executer.Visit(progContext);
+                    Interpret(input, executer);
                 }
                 catch (SyntaxErrorException e)
                 {
@@ -75,6 +67,25 @@ namespace ShaellLang
                 // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
             } while (interactivemode);
 
+        }
+
+        private static void Interpret(Func<string> input, ExecutionVisitor executer)
+        {
+            var errorListener = new ShaellErrorReporter();
+            AntlrInputStream inputStream = new AntlrInputStream(input());
+            ShaellLexer shaellLexer = new ShaellLexer(inputStream);
+            errorListener.SetErrorListener(shaellLexer);
+            CommonTokenStream commonTokenStream = new CommonTokenStream(shaellLexer);
+            ShaellParser shaellParser = new ShaellParser(commonTokenStream);
+            errorListener.SetErrorListener(shaellParser);
+
+            ShaellParser.ProgContext progContext = shaellParser.prog();
+
+            Console.WriteLine(errorListener);
+            if (errorListener.HasErrors)
+                return;
+            executer.Visit(progContext);
+            
         }
 
         /// <summary>
