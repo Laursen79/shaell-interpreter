@@ -81,6 +81,11 @@ public class SFile : BaseValue
 
         return new BString(buffer);
     }
+    
+    public StreamWriter OpenWriteStream(bool append)
+    {
+        return new StreamWriter(_path, append);
+    }
 
     public override bool ToBool() => true;
 

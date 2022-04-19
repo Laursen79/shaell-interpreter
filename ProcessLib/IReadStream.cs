@@ -11,4 +11,6 @@ public interface IReadStream
     public bool ReachedEnd();
 
     public event ReadStreamFinished ReadStreamFinished;
+    
+    public int RecipientCount { get; }
 }

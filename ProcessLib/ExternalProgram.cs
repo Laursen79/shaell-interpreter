@@ -18,8 +18,6 @@ public class ExternalProgram
             _process.StartInfo.ArgumentList.Add(argument);
         }
         _process.StartInfo.UseShellExecute = false;
-        _process.StartInfo.RedirectStandardOutput = true;
-        _process.StartInfo.RedirectStandardError = true;
         _process.StartInfo.RedirectStandardInput = true;
         _process.StartInfo.CreateNoWindow = true;
         
@@ -37,19 +35,32 @@ public class ExternalProgram
             throw new Exception("JobObject already started");
         }
         _started = true;
+        _process.StartInfo.RedirectStandardOutput = _out.RecipientCount > 0;
+        _process.StartInfo.RedirectStandardError = _err.RecipientCount > 0;
         _process.Start();
-        _out.Bind(_process, _process.StandardOutput);
-        _out.StartPiping();
-        _err.Bind(_process, _process.StandardError);
-        _err.StartPiping();
+        if (_out.RecipientCount > 0)
+        {
+            _out.Bind(_process, _process.StandardOutput);
+            _out.StartPiping();
+        }
+
+        if (_err.RecipientCount > 0)
+        {
+            _err.Bind(_process, _process.StandardError);
+            _err.StartPiping();
+        }
         _in.Bind(_process.StandardInput);
     }
 
-    public async Task Wait()
+    public void Wait()
     {
-        await _process.WaitForExitAsync();
+        _process.WaitForExit();
+        if (_out.RecipientCount > 0)
+            _out.WaitForFinish();
+        if (_err.RecipientCount > 0)
+            _err.WaitForFinish();
     }
-    
+
     public IReadStream Out => _out;
     public IReadStream Err => _err;
     public IWriteStream In => _in;

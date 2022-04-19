@@ -7,7 +7,7 @@ public class StringReadStream
     private bool _finished;
     private List<IWriteStream> _targets;
     
-    StringReadStream(string str)
+    public StringReadStream(string str)
     {
         _str = str;
         _targets = new List<IWriteStream>();
@@ -36,4 +36,5 @@ public class StringReadStream
     }
 
     public event ReadStreamFinished? ReadStreamFinished;
+    public int RecipientCount => _targets.Count;
 }

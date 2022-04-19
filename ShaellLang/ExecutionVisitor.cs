@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
+using ProcessLib;
 
 namespace ShaellLang;
 
@@ -577,12 +578,28 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
 
     public override IValue VisitPIPEExpr(ShaellParser.PIPEExprContext context)
     {
-        var lhs = SafeVisit(context.expr(0)).ToSProcess();
-        var rhs = SafeVisit(context.expr(1)).ToSProcess();
+        var lhs = SafeVisit(context.expr(0)).Unpack();
+        var rhs = SafeVisit(context.expr(1)).Unpack();
 
-        lhs.Out.Pipe(rhs.In);
-        
-        lhs.Run();
+        IReadStream leftStream;
+        if (lhs is SString str)
+            leftStream = new StringReadStream(str.Val);
+        else if (lhs is SProcess proc)
+            leftStream = proc.Out;
+        else
+            throw new Exception($"Cannot pipe {lhs.GetTypeName()} as read stream");
+
+        IWriteStream rightStream;
+        if (rhs is SFile sfile)
+            rightStream = new WriteStream(sfile.OpenWriteStream(true));
+        else if (rhs is SProcess proc2)
+            rightStream = proc2.In;
+        else
+            throw new Exception($"Cannot use {rhs.GetTypeName()} as write stream");
+
+        leftStream.Pipe(rightStream);
+        if (lhs is SProcess proc3)
+            proc3.Run();
 
         return rhs;
     }

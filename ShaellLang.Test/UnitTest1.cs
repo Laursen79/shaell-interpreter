@@ -18,7 +18,7 @@ public class UnitTest1
     
     [Fact]
     public void TestMetaTables()
-    {   
+    {
         // Act  
         bool testFailed = shaellLang.Run("../../../MetatableTest.æ", new string[]{"MetatableTest.æ", ""});
 

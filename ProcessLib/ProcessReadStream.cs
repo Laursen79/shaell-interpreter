@@ -9,6 +9,7 @@ public class ProcessReadStream : IReadStream
     private StreamReader _associatedReader;
     private ProcessReadStreamServer _server;
     public event ReadStreamFinished ReadStreamFinished;
+    public int RecipientCount => _recepients.Count;
 
     private class ProcessReadStreamServer
     {
@@ -39,6 +40,7 @@ public class ProcessReadStream : IReadStream
         public void StopServer()
         {
             _shouldStop = true;
+            _thread.Join();
         }
 
         private void ServerThread()
@@ -57,7 +59,13 @@ public class ProcessReadStream : IReadStream
                     break;
                 }
             }
+            _stream.CloseRecipients();
             _stream.ReadStreamFinished?.Invoke();
+        }
+
+        public void WaitForFinish()
+        {
+            _thread.Join();
         }
     }
     
@@ -82,11 +90,10 @@ public class ProcessReadStream : IReadStream
             throw new Exception("Server already started");
         }
         _server = new ProcessReadStreamServer(this);
-        ReadStreamFinished += OnReadStreamFinished;
         _server.StartServer();
     }
 
-    private void OnReadStreamFinished()
+    private void CloseRecipients()
     {
         foreach (var recipient in _recepients)
         {
@@ -104,7 +111,11 @@ public class ProcessReadStream : IReadStream
         return _process.HasExited;
     }
 
-
+    public void WaitForFinish()
+    {
+        _server.WaitForFinish();
+    }
+    
     private void SendToRecipient(string data)
     {
         foreach (var recipient in _recepients)
