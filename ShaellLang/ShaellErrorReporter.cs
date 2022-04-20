@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Generic;
 using Antlr4.Runtime;
 
 namespace ShaellLang;
@@ -36,16 +34,4 @@ public class ShaellErrorReporter
         parser.AddErrorListener(new ShaellParserErrorListener(this));
     }
     
-}
-
-public struct ShaellError
-{
-    public string Message;
-    public Exception Exception;
-
-    public ShaellError([NotNull] string message, Exception exception)
-    {
-        Message = message;
-        Exception = exception;
-    }
 }
