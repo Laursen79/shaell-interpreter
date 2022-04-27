@@ -573,6 +573,15 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
             args.Add(val);
         }
 
+        var pipeExpr = context.FindAncestorOfType<ShaellParser.PIPEExprContext>();
+        IValue result;
+
+        if (lhs is SProcessFuncWrap wrapper && pipeExpr != null)
+        {
+            var proc = wrapper.GetProcess(args);
+            return proc;
+        }
+
         return lhs.Call(args);
     }
 
