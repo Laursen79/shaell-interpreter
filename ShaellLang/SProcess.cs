@@ -21,8 +21,6 @@ public class SProcess : BaseTable, IProcess
     public IWriteStream In { get; }
     public int ExitCode { get; }
 
-    //public Stream OutStream => _externalProgram.OutStream;
-
     public SProcess(string filename, IEnumerable<string> args) : base("process")
     {
         _args = args;
@@ -60,9 +58,5 @@ public class SProcess : BaseTable, IProcess
     public override SProcess ToSProcess() => this;
 
     public override bool IsEqual(IValue other) => this == other;
-
-    public IPipeline PipeInto(IPipeable rhspipeable)
-    {
-        throw new NotImplementedException();
-    }
+    
 }

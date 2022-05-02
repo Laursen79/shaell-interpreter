@@ -24,6 +24,7 @@ public class WriteStream : IWriteStream
         if (_bufferedText.Length > 0)
         {
             _writer.Write(_bufferedText);
+            _writer.Close();
         }
         //If everything was written before this was binding it should just immidiatly close
         if (_shouldClose)

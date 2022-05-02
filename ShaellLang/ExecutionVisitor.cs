@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
@@ -577,52 +578,51 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
         var rhs = SafeVisit(context.expr(1)).Unpack();
 
         IPipeable pipeableLhs;
+        IReadStream leftStream;
+        
         if (lhs is IPipeable pipeable1)
+        {
             pipeableLhs = pipeable1;
+            leftStream = pipeable1.Out;
+        }
         else if (lhs is SStream stream)
+        {
             pipeableLhs = stream.Parent;
+            leftStream = stream.Out;
+        }
         else
             throw new Exception("Left hand side of pipe expression is not pipeable");
-        
-        IReadStream leftStream;
-        if (lhs is SString str)
-            leftStream = new StringReadStream(str.Val);
-        else if (lhs is IProcess proc)
-            leftStream = proc.Out;
-        else if (lhs is SStream stream)
-            leftStream = stream.Out;
-        else
-            throw new Exception($"Cannot pipe {lhs.GetType()} as read stream");
 
         IPipeable pipeableRhs;
+        IWriteStream rightStream;
         if (rhs is IPipeable pipeable2)
+        {
             pipeableRhs = pipeable2;
+            rightStream = pipeable2.In;
+        }
         else if (rhs is SStream stream)
+        {
             pipeableRhs = stream.Parent;
+            rightStream = stream.In;
+        }
         else
             throw new Exception("Left hand side of pipe expression is not pipeable");
-        
-        IWriteStream rightStream;
-        if (rhs is SFile sfile)
-            rightStream = new WriteStream(sfile.OpenWriteStream(true));
-        else if (rhs is SString str2)
-            rightStream = new StringWriteStream(str2.Val);
-        else if (rhs is SProcess proc2)
-            rightStream = proc2.In;
-        else if (rhs is SStream stream2)
-            rightStream = stream2.In;
-        else
-            throw new Exception($"Cannot use {rhs.GetType()} as write stream");
 
         leftStream.Pipe(rightStream);
-        
-        //if (lhs is SProcess proc3)
-            //proc3.Run();
-            
-        if (lhs is Pipeline pipeline)
-            pipeline.Steps.Add(pipeableRhs);
+
+        Pipeline pipeline;
+        if (lhs is Pipeline p1)
+        {
+            pipeline = p1;
+            pipeline.AddStep(pipeableRhs);
+        }
         else pipeline = new Pipeline(pipeableLhs, pipeableRhs);
-            
+
+        if (rhs is SStream stream2)
+        {
+            return stream2;
+        }
+        
         return pipeline;
     }
 

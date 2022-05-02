@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using ProcessLib;
 
 namespace ShaellLang;
 
-public class SFile : BaseValue
+public class SFile : BaseValue, IPipeable
 {
     private string _path;
     private NativeTable _table;
@@ -103,4 +104,11 @@ public class SFile : BaseValue
     {
         return other == this;
     }
+
+    private IReadStream _out = null;
+    private IWriteStream _in = null;
+    public IReadStream Out => _out ??= new StringReadStream(File.ReadAllText(_path));
+
+    public IReadStream Err => throw new NotImplementedException();
+    public IWriteStream In => _in ??= new WriteStream(this.OpenWriteStream(true));
 }

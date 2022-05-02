@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ProcessLib;
 
 namespace ShaellLang;
 
-public class SString : BaseValue, ITable
+public class SString : BaseValue, ITable, IPipeable
 {
     private string _val;
     private NativeTable _nativeTable;
@@ -141,4 +142,11 @@ public class SString : BaseValue, ITable
     {
         return new SString($"\"{_val}\"");
     }
+
+    private IReadStream _out = null;
+    private IWriteStream _in = null;
+    public IReadStream Out => _out ??= new StringReadStream(_val);
+
+    public IReadStream Err => throw new NotImplementedException();
+    public IWriteStream In => _in ??= new StringWriteStream(_val);
 }

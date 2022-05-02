@@ -16,15 +16,24 @@ namespace ShaellLang
         public List<IPipeable> Steps { get; set; } = new List<IPipeable>();
         public Pipeline(IPipeable process, IPipeable nextProcess):base("pipeline")
         {
-            Steps.Add(process);
-            Steps.Add(nextProcess);
+            AddStep(process);
+            AddStep(nextProcess);
             SetValue(new SString("run"), new NativeFunc(RunFunc, 0));
         }
+        
+        public void AddStep(IPipeable step)
+        {
+            if (step is SProcess process)
+                SetValue(new SString("err"), process.GetValue(new SString("err")));
+                
+            Steps.Add(step);
+        }
+
         public IValue RunFunc(IEnumerable<IValue> args)
         {
             var task = Run();
             task.Wait();
-            return null;
+            return new SNull();
         }
 
         public IReadStream Out => Steps.Last().Out;
@@ -49,6 +58,10 @@ namespace ShaellLang
                     await process.Run();
                     Console.WriteLine(writer.Val);
                     Console.WriteLine(writer2.Val);
+                }
+                else
+                {
+                    pipeable.Out.StartPiping();
                 }
             }
         }

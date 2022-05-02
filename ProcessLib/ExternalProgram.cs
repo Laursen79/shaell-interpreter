@@ -69,7 +69,6 @@ public class ExternalProgram
         {
             throw new Exception("JobObject already started");
         }
-        
         _process.StartInfo.RedirectStandardOutput = _out.RecipientCount > 0;
         _process.StartInfo.RedirectStandardError = _err.RecipientCount > 0;
         _process.Start();
