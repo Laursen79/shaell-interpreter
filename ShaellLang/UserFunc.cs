@@ -16,7 +16,7 @@ public class UserFunc : BaseValue, IFunction
         ShaellParser.StmtsContext funcStmts, 
         ScopeManager capturedScope, 
         List<string> formalArguments
-        ) : base("userfunc")
+        )
     {
         _funcStmts = funcStmts;
         _capturedScope = capturedScope;

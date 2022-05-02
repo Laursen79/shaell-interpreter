@@ -11,14 +11,14 @@ public static class RuleContextExtensions
     /// <param name="context">The context to search.</param>
     /// <typeparam name="T">The type of context to search for.</typeparam>
     /// <returns>The First ancestor of type <typeparamref name="T"/></returns>
-    public static RuleContext FindAncestorOfType<T>(this RuleContext context) where T : RuleContext
+    public static T FindAncestorOfType<T>(this RuleContext context) where T : RuleContext
     {
         RuleContext ancestor = context.Parent;
         while (!ancestor.IsEmpty)
         {
-            if (ancestor is T)
+            if (ancestor is T typedAncestor)
             {
-                return ancestor;
+                return typedAncestor;
             }
             ancestor = ancestor.Parent;
         }

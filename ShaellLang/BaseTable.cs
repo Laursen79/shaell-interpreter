@@ -12,9 +12,7 @@ public class BaseTable : BaseValue, ITable
     //Store the integer keys in an array
     private List<RefValue> _consecutiveValues = new();
     public int ArrayLength => _consecutiveValues.Count;
-    public BaseTable(string typeName) : base(typeName)
-    { }
-
+  
     /// <summary>
     /// Sets a value into the table.
     /// </summary>

@@ -10,7 +10,7 @@ public class SFile : BaseValue
     private string _path;
     private NativeTable _table;
 
-    public SFile(string path) : base("file")
+    public SFile(string path)
     {
         _path = path;
         GenerateFileValues();

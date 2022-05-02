@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ShaellLang": {
+      "commandName": "Project",
+      "commandLineArgs": "C:/repos/shaell-interpreter/ShaellLang/testscripts/cray.æ"
+    }
+  }
+}

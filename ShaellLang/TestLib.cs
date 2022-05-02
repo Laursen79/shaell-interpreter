@@ -67,9 +67,9 @@ public static class TestLib
             throw new Exception("assert: too few arguments");
         }
         
-        if (argArr[0].GetTypeName() != argArr[1].ToSString().Val)
+        if (argArr[0].GetType().ToString() != argArr[1].ToSString().Val)
         {
-            throw new Exception($"assert: expected type {argArr[1].ToSString().Val} but got {argArr[0].GetTypeName()}");
+            throw new Exception($"assert: expected type {argArr[1].ToSString().Val} but got {argArr[0].GetType()}");
         }
 
         return new SNull();

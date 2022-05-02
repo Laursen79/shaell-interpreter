@@ -19,8 +19,6 @@ namespace ShaellLang
 
 		bool IsEqual(IValue other);
 
-		string GetTypeName();
-
 		IValue Unpack();
 	}
 }

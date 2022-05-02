@@ -11,13 +11,11 @@ namespace ShaellLang
         private static NumberTable _numberTable = NumberTable.getInstance();
         
         public Number(long value)
-            : base("integernumber")
         {
             _numberRepresentation = value;
         }
 
         public Number(double value)
-            : base("floatingnumber")
         {
             _numberRepresentation = value;
         }

@@ -11,7 +11,6 @@ public class SString : BaseValue, ITable
     private NativeTable _nativeTable;
     
     public SString(string str)
-        : base("string")
     {
         _val = str;
         _nativeTable = new NativeTable();
@@ -119,5 +118,9 @@ public class SString : BaseValue, ITable
         }
 
         return false;
+    }
+    public static implicit operator SString(string val)
+    {
+        return new SString(val);
     }
 }

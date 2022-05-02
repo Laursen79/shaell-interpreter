@@ -12,7 +12,6 @@ public class BString : BaseValue, ITable
     private NativeTable _table;
 
     public BString(byte[] buf)
-        : base("bstring")
     {
         _buffer = buf;
         _val = Encoding.Default.GetString(buf);
