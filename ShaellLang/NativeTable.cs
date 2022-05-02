@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace ShaellLang;
@@ -21,16 +22,24 @@ public class NativeTable : ITable
         if (key is SString stringKey)
         {
             if (valueLookup.TryGetValue(stringKey.Val, out IValue val))
-            {
                 return new RefValue(val);
-            }
         }
-
         return null;
     }
 
     public virtual void RemoveValue(IValue key)
     {
         return;
+    }
+
+    public IEnumerable<IValue> GetKeys()
+    {
+        var rv = new List<IValue>();
+        foreach (var key in valueLookup)   
+        {
+            rv.Add(new SString(key.Key));
+        }
+
+        return rv;
     }
 }

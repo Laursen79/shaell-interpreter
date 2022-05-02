@@ -12,7 +12,7 @@ public class SProcessFuncWrap
 {
     private string _path;
     
-    public SProcessFuncWrap(string path)
+    public SProcessFuncWrap(string path) : base("funcwrap")
     {
         _path = path;
     }

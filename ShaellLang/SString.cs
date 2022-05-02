@@ -11,6 +11,7 @@ public class SString : BaseValue, ITable
     private NativeTable _nativeTable;
     
     public SString(string str)
+        : base("string")
     {
         _val = str;
         _nativeTable = new NativeTable();
@@ -70,6 +71,18 @@ public class SString : BaseValue, ITable
         return _val;
     }
 
+    public IEnumerable<IValue> GetKeys()
+    {
+        var rv = new List<Number>();
+        for (int i = 0; i < _val.Length; i++)
+        {
+            var n = new Number(i);
+            rv.Add(n);
+        }
+        
+        return rv;
+    }
+
     public static SString operator +(SString left, SString right)
     {
         return new SString(left.Val + right.Val);
@@ -122,5 +135,10 @@ public class SString : BaseValue, ITable
     public static implicit operator SString(string val)
     {
         return new SString(val);
+    }
+
+    public override SString Serialize()
+    {
+        return new SString($"\"{_val}\"");
     }
 }

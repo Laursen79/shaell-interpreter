@@ -9,10 +9,11 @@ public class SFile : BaseValue
 {
     private string _path;
     private NativeTable _table;
-
-    public SFile(string path)
+    private string _cwd;
+    public SFile(string path, string cwd) : base("file")
     {
         _path = path;
+        _cwd = cwd;
         GenerateFileValues();
     }
     
@@ -29,14 +30,16 @@ public class SFile : BaseValue
         _table.SetValue("exists", new NativeFunc( ExistsFunc, 0));
     }
 
+    private string RealPath => Path.Join(_cwd, _path);
+
     private IValue ExistsFunc(IEnumerable<IValue> argCollection)
     {
-        return new SBool(File.Exists(_path));
+        return new SBool(File.Exists(RealPath));
     }
 
     private IValue SizeFunc(IEnumerable<IValue> argCollection)
     {
-        return new Number(new FileInfo(_path).Length);
+        return new Number(new FileInfo(RealPath).Length);
     }
 
     private IValue OpenWriteSteamFunc(IEnumerable<IValue> argCollection)
@@ -51,7 +54,7 @@ public class SFile : BaseValue
 
     private IValue AppendFunc(IEnumerable<IValue> argCollection)
     {
-        StreamWriter f = new FileInfo(_path).AppendText();
+        StreamWriter f = new FileInfo(RealPath).AppendText();
         f.WriteLine(argCollection.ToArray()[0].ToSString().Val);
         f.Flush();
         return new SNull();
@@ -59,21 +62,20 @@ public class SFile : BaseValue
 
     private IValue ReadToEndFunc(IEnumerable<IValue> argCollection)
     {
-        if (!File.Exists(_path)) throw new Exception("No file");
+        if (!File.Exists(RealPath)) throw new Exception("No file");
         return new BString(File.ReadAllText(_path));
     }
 
     private IValue DeleteFunc(IEnumerable<IValue> argCollection)
     {
-        Console.WriteLine(_path);
-        File.Delete(_path);
+        File.Delete(RealPath);
         return new SNull();
     }
 
     private IValue ReadFunc(IEnumerable<IValue> argCollection)
     {
         long[] args = argCollection.Select(y => y.ToNumber().ToInteger()).ToArray();
-        FileStream fs = new FileInfo(_path).OpenRead();
+        FileStream fs = new FileInfo(RealPath).OpenRead();
         fs.Seek(args[1], SeekOrigin.Begin);
 
         byte[] buffer = new byte[args[0]];
@@ -93,9 +95,10 @@ public class SFile : BaseValue
 
     public override IFunction ToFunction() => new SProcessFuncWrap(_path);
 
-    public override SString ToSString() => new (_path);
+    public override SString ToSString() => new SString($"(FilePath \"{_path}\" relative to \"{_cwd}\")");
 
     public override ITable ToTable() => _table;
+    
     public override bool IsEqual(IValue other)
     {
         return other == this;

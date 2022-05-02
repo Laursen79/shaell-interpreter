@@ -1,9 +1,5 @@
 ﻿args(bob, bob2, bo3, bo4)
-echo("bingbong") -> grep("game")
-echo("bingbong") -> grep("bong")
-curl("https://www.google.com") -> grep("google") -> @"nice fil.html"
-nano()
-/*
+
 print(bob)
 print(bo3, bo4)
 print("all args")
@@ -148,4 +144,3 @@ testvalue -= 2
 print(testvalue)
 testvalue /= 2
 print(testvalue)
-*/

@@ -6,7 +6,7 @@ options {
 
 prog: stmts | programArgs stmts;
 stmts: stmt*;
-stmt: ifStmt | forLoop | whileLoop | returnStatement | functionDefinition | expr;
+stmt: ifStmt | forLoop | whileLoop | returnStatement | functionDefinition | foreach | foreachKeyValue | throwStatement | expr;
 boolean: 
     TRUE # TrueBoolean 
     | FALSE # FalseBoolean
@@ -16,6 +16,7 @@ expr: DQUOTE strcontent* END_STRING # StringLiteralExpr
     | NUMBER # NumberExpr
     | NULL # NullExpr
 	| boolean # BooleanExpr
+	| TRY stmts END #TryExpr
 	| IDENTIFIER # IdentifierExpr
 	| LPAREN expr RPAREN # Parenthesis
 	| LCURL (objfields ASSIGN expr (COMMA objfields ASSIGN expr)*)? RCURL #ObjectLiteral
@@ -62,10 +63,17 @@ objfields:
     ;
 innerArgList: (expr (COMMA expr)*)?;
 innerFormalArgList: (IDENTIFIER (COMMA IDENTIFIER)*)?;
-programArgs: ARGS LPAREN innerFormalArgList RPAREN;
+argv: BOR IDENTIFIER;
+programArgs: ARGS LPAREN innerFormalArgList RPAREN
+    | ARGS LPAREN innerFormalArgList argv RPAREN;
 ifStmt: IF expr THEN stmts (ELSE stmts)? END;
 forLoop: FOR expr COMMA expr COMMA expr DO stmts END;
+foreach: FOREACH IDENTIFIER IN expr DO stmts END;
+foreachKeyValue: FOREACH IDENTIFIER COMMA IDENTIFIER IN expr DO stmts END;
 whileLoop: WHILE expr DO stmts END;
-functionDefinition: FUNCTION IDENTIFIER LPAREN innerFormalArgList RPAREN stmts END;
-anonFunctionDefinition: FUNCTION LPAREN innerFormalArgList RPAREN stmts END;
+functionDefinition: FUNCTION IDENTIFIER LPAREN innerFormalArgList RPAREN functionBody;
+anonFunctionDefinition: FUNCTION LPAREN innerFormalArgList RPAREN functionBody;
+functionBody: stmts END
+    | LAMBDA expr;
 returnStatement: RETURN expr;
+throwStatement: THROW expr; 

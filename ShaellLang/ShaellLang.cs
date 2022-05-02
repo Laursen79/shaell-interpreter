@@ -1,58 +1,96 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Antlr4.Runtime;
 
 namespace ShaellLang
 {
-	public class ShaellLang
-	{
-		//Runs the test script and returns whether it failed or not
-		public bool Run(string file, string[] args)
-		{
-			string fileContent = File.ReadAllText(file);
+    public class ShaellLang
+    {
+        private ExecutionVisitor _executioner;
+        private ShaellErrorReporter _errorReporter;
 
-			try
-			{
-				AntlrInputStream inputStream = new AntlrInputStream(fileContent);
-				ShaellLexer shaellLexer = new ShaellLexer(inputStream);
-				shaellLexer.AddErrorListener(new ShaellLexerErrorListener());
-				CommonTokenStream commonTokenStream = new CommonTokenStream(shaellLexer);
-				ShaellParser shaellParser = new ShaellParser(commonTokenStream);
+        public ShaellLang()
+        {
+            _executioner = new ExecutionVisitor();
+        }
+        
+        public ShaellLang(IEnumerable<string> args)
+        {
+            _executioner = new ExecutionVisitor(args.ToArray());
+        }
 
-				ShaellParser.ProgContext progContext = shaellParser.prog();
-				var executer = new ExecutionVisitor(args[1..]);
-				executer.SetGlobal("print", new NativeFunc(delegate(IEnumerable<IValue> args)
-				{
-					foreach (var value in args)
-					{
-						Console.Write(value.ToSString().Val);
-					}
+        private ShaellParser CreateParser(string code)
+        {
+            _errorReporter = new ShaellErrorReporter();
+            AntlrInputStream inputStream = new AntlrInputStream(code);
+            ShaellLexer shaellLexer = new ShaellLexer(inputStream);
+            
+            _errorReporter.SetErrorListener(shaellLexer);
+            
+            CommonTokenStream commonTokenStream = new CommonTokenStream(shaellLexer);
+            var parser = new ShaellParser(commonTokenStream);
+            
+            _errorReporter.SetErrorListener(parser);
+            if (_errorReporter.HasErrors)
+            {
+                throw new ShaellLangSyntaxException(_errorReporter);
+            }
+            return parser;
+        }
+        
+        public void LoadStdLib()
+        {
+            _executioner.SetGlobal("print", new NativeFunc(StdLib.PrintFunc, 0));
+            _executioner.SetGlobal("cd", new NativeFunc(StdLib.CdFunc, 0));
+            _executioner.SetGlobal("exit", new NativeFunc(StdLib.ExitFunc, 0));
+            _executioner.SetGlobal("debug_break", new NativeFunc(StdLib.DebugBreakFunc, 0));
+            _executioner.SetGlobal("T", TableLib.CreateLib());
+            _executioner.SetGlobal("A", TestLib.CreateLib());
+        }
+        
+        public void SetGlobal(string name, IValue value)
+        {
+            _executioner.SetGlobal(name, value);
+        }
 
-					Console.WriteLine();
+        public IValue RunCode(string code)
+        {
+            var parser = CreateParser(code);
+            //If we just run code, we cant have the args() syntax
+            //Therefore we just parse stmts
+            var stmts = parser.stmts();
+            if (_errorReporter.HasErrors)
+            {
+                throw new ShaellLangSyntaxException(_errorReporter);
+            }
+            return _executioner.VisitStmts(stmts, false, true);
+        }
 
-					return new SNull();
-				}, 0));
+        public IValue RunFile(string path)
+        {
+            var parser = CreateParser(File.ReadAllText(path));
+            var progContext = parser.prog();
+            if (_errorReporter.HasErrors)
+            {
+                throw new ShaellLangSyntaxException(_errorReporter);
+            }
+            return _executioner.Visit(progContext);
+        }
+    }
 
-				executer.SetGlobal("T", TableLib.CreateLib());
+    class ShaellLangSyntaxException : Exception
+    {
+        private ShaellErrorReporter _errorListener;
+        public ShaellLangSyntaxException(ShaellErrorReporter errorListener)
+        {
+            _errorListener = errorListener;
+        }
 
-				executer.SetGlobal("A", TestLib.CreateLib());
-
-				executer.SetGlobal("debug_break", new NativeFunc(delegate(IEnumerable<IValue> args)
-				{
-					Console.WriteLine("Debug break");
-					return new SNull();
-				}, 0));
-
-				executer.Visit(progContext);
-			}
-			catch (SyntaxErrorException e)
-			{
-				Console.WriteLine(e.Message);
-				return TestLib.testFailed;
-
-			}
-			return TestLib.testFailed;
-		}
-	}
+        public override string ToString()
+        {
+            return _errorListener.ToString();
+        }
+    }
 }

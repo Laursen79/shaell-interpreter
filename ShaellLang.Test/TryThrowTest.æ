@@ -1,0 +1,74 @@
+A:describe("Throw should be caught by try", fn()
+    let res = try
+        throw "some error"
+    end
+    A:assert(res:status != 0, "Status should be non 0 on error")
+    A:assert(res:error == "some error", "The thrown value should be intact")
+end)
+
+A:describe("Try should return the value", fn()
+    let res = try
+        let a = 1 + 2
+        let b = 1 + 3
+        a + b
+    end
+    A:assert(res:status == 0, "Status should be 0 on success")
+    A:assert(res:value == (1+2)+(1+3), "The value should be the sum of a and b")
+end)
+
+A:describe("Throw should float to the top level", fn()
+    fn thrower2()
+        throw "some error"
+    end
+    fn thrower()
+        thrower2()
+    end
+    let res = try
+        let res = try thrower() end
+        A:assert(res:status != 0, "Status should be non 0 on error")
+        A:assert(res:error == "some error", "The thrown value should be intact")
+    end
+end)
+
+A:describe("Nested catchers should only reach the top one", fn()
+    let res = try 
+        let res = try 
+            throw "a"
+        end
+        A:assert(res:status != 0, "Status should be non 0 on error")
+        A:assert(res:error == "a", "The thrown value should be intact")
+        res:error
+    end
+    A:assert(res:status == 0, "Status should be 0 on success")
+    A:assert(res:value == "a", "The return value should be intact")
+end)
+
+A:describe("Scope should be restored correctly", fn()
+    let res = try
+        let a = 1
+        let b = 2
+        #We add some extra scopes to try and break stuff
+        if true then
+            let c = 3
+            let d = 4
+            if true then
+                let e = 5
+                let f = 6
+                throw "some error"
+            end
+        end
+    end 
+    res = try
+        a = "b"
+    end
+    A:assert(res:status != 0, "a should be undeclared therefore throw an error")
+end)
+
+A:describe("Scope values should be modified", fn()
+    let a = 1
+    try
+        a = 2
+        throw "Go out of scope"
+    end
+    A:assert(a == 2, "a should be 2")
+end)

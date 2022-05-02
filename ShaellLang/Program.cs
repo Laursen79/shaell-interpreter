@@ -14,69 +14,71 @@ namespace ShaellLang
             bool interactivemode = args.Length < 1; //TODO: Adjust for Shæll-flags, and not just the users scripts flags
 
             //Gets working directory and sets the input to be either a script (if arguments are provided) or interactive mode
-            Func<string> indexer = () => $"{Directory.GetCurrentDirectory().Split(new [] { '/', '\\' }).Last()} $ ";
-            Func<string> input;
-            if (!interactivemode)
-                input = () => File.ReadAllText(args[0]);
+
+            ShaellLang shaellLang;
+            if (interactivemode)
+                shaellLang = new ShaellLang(Enumerable.Empty<string>());
             else
-            {
-                input = () =>
-                {
-                    Console.TreatControlCAsInput = true;
-                    string home = Environment.OSVersion.Platform is PlatformID.Unix or PlatformID.MacOSX
-                        ? Environment.GetEnvironmentVariable("HOME")
-                        : Environment.ExpandEnvironmentVariables("%HOMEDRIVE%%HOMEPATH%");
-                    input = () => ReadInput(home, indexer());
-                    if (File.Exists($"{home}/.shællrc"))
-                        return File.ReadAllText($"{home}/.shællrc");
-                    return input();
-                };
-            }
+                shaellLang = new ShaellLang(args.Skip(1));
             
-            ExecutionVisitor executer = interactivemode ? new ExecutionVisitor() : new ExecutionVisitor(args[1..]);
+            shaellLang.LoadStdLib();
 
-            executer.SetGlobal("print", new NativeFunc(delegate(IEnumerable<IValue> innerArgs)
-            {
-                foreach (var value in innerArgs)
-                    Console.Write(value.ToSString().Val);
-                Console.WriteLine();
-
-                return new SNull();
-            }, 0));
-
-            executer.SetGlobal("T", TableLib.CreateLib());
-
-            executer.SetGlobal("A", TestLib.CreateLib());
-
-            executer.SetGlobal("debug_break", new NativeFunc(delegate
-            {
-                Console.WriteLine("Debug break");
-                return new SNull();
-            }, 0));
-            
-            do
-            {
-                try
-                {
-                    AntlrInputStream inputStream = new AntlrInputStream(input());
-                    ShaellLexer shaellLexer = new ShaellLexer(inputStream);
-                    shaellLexer.AddErrorListener(new ShaellLexerErrorListener());
-                    CommonTokenStream commonTokenStream = new CommonTokenStream(shaellLexer);
-                    ShaellParser shaellParser = new ShaellParser(commonTokenStream);
-
-                    ShaellParser.ProgContext progContext = shaellParser.prog();
-
-                    executer.Visit(progContext);
-                }
-                catch (SyntaxErrorException e)
-                {
-                    Console.WriteLine(e.Message);
-                }
-                // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
-            } while (interactivemode);
+            if (interactivemode)
+                StartRepl(shaellLang);
+            else
+                ExecuteScript(shaellLang, args[0]);
 
         }
 
+        private static void ExecuteScript(ShaellLang shaellLang, string path)
+        {
+            try
+            {
+                var rv = shaellLang.RunFile(path);
+                if (rv != null)
+                    Environment.Exit((int) rv.ToNumber().ToInteger());
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+        
+        private static void StartRepl(ShaellLang shaellLang)
+        {
+            Func<string> indexer = () => $"{Directory.GetCurrentDirectory().Split(new [] { '/', '\\' }).Last()} $ ";
+            Console.TreatControlCAsInput = true;
+            string home = Environment.OSVersion.Platform is PlatformID.Unix or PlatformID.MacOSX
+                ? Environment.GetEnvironmentVariable("HOME")
+                : Environment.ExpandEnvironmentVariables("%HOMEDRIVE%%HOMEPATH%");
+            string shaellRcPath = Path.Combine(home, ".shællrc");
+            try
+            {
+                if (File.Exists(shaellRcPath))
+                    shaellLang.RunFile(shaellRcPath);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error while executing shællrc: ");
+                Console.WriteLine(e);
+            }
+
+            while (true)
+            {
+                var input = ReadInput(home, indexer());
+                try
+                {
+                    var rv = shaellLang.RunCode(input);
+                    if (rv != null)
+                         Console.WriteLine(rv);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+        
         /// <summary>
         /// Reads input from user, char by char. Responds to up/down arrow keys, inputting previous commands.
         /// </summary>
@@ -177,7 +179,6 @@ namespace ShaellLang
             // saves command in history (including the timestamp of the commands) if there was any content in the command.
             if (@out.Length > 0)
                 File.AppendAllText($"{home}/.shæll_history", $"{DateTime.Now:MM/dd/yyyy HH.mm.ss}:{@out}\n");
-            Console.WriteLine();
             return @out;
         }
     }

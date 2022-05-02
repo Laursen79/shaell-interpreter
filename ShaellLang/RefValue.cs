@@ -3,7 +3,7 @@
 public class RefValue : BaseValue
 {
     private IValue _realValue;
-    public RefValue(IValue val)
+    public RefValue(IValue val):base("refvalue")
     {
         _realValue = val;
     }
@@ -50,5 +50,10 @@ public class RefValue : BaseValue
     public override string ToString()
     {
         return _realValue.ToString();
+    }
+
+    public override SString Serialize()
+    {
+        return _realValue.Serialize();
     }
 }

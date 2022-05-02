@@ -4,7 +4,7 @@ namespace ShaellLang;
 
 public class SStream :BaseValue
 {
-    public SStream(IWriteStream @in, IReadStream @out, IProcess parent)
+    public SStream(IWriteStream @in, IReadStream @out, IProcess parent) : base("stream")
     {
         In = @in;
         Out = @out;

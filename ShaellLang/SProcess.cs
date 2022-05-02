@@ -23,7 +23,7 @@ public class SProcess : BaseTable, IProcess
 
     //public Stream OutStream => _externalProgram.OutStream;
 
-    public SProcess(string filename, IEnumerable<string> args) 
+    public SProcess(string filename, IEnumerable<string> args) : base("process")
     {
         _args = args;
         _externalProgram = new ExternalProgram(filename, args);
@@ -33,32 +33,6 @@ public class SProcess : BaseTable, IProcess
         In = _externalProgram.In;
         SetValue((SString) "out", new SStream(In, Out, this));
         SetValue((SString) "err", new SStream(In, Err, this));
-    }
-
-    /*public async Task<ProcessOutput> Execute(Task<ProcessOutput>? previous)
-    {
-        return await Task.Run(async () =>
-        {
-            var outWriteStream = new StringWriteStream("");
-            var errWriteStream = new StringWriteStream("");
-            _externalProgram.Out.Pipe(outWriteStream);
-            _externalProgram.Err.Pipe(errWriteStream);
-            if (_hasBeenRun)
-            {
-                throw new Exception("Process has already been run");
-            }
-
-            var output = await _externalProgram.Execute(previous);
-            _hasBeenRun = true;
-            _storedOut = new SString(outWriteStream.Val);
-            _storedErr = new SString(errWriteStream.Val);
-            return output;
-        });
-    }*/
-
-    public void PipeIn(Stream pipeOut)
-    {
-        throw new NotImplementedException();
     }
 
     public async Task Run()
@@ -78,67 +52,17 @@ public class SProcess : BaseTable, IProcess
         _storedErr = new SString(errWriteStream.Val);
     }
 
-    /*public void Run()
-    {
-        // var outWriteStream = new StringWriteStream("");
-        // var errWriteStream = new StringWriteStream("");
-        // _externalProgram.Out.Pipe(outWriteStream);
-        // _externalProgram.Err.Pipe(errWriteStream);
-        _externalProgram.ProcessExited += (sender, args) =>
-        {
-            OnComplete?.Invoke();
-        };
-        _externalProgram.Start();
-        OnStart?.Invoke();
-        _externalProgram.Wait();
-        // _storedOut = new SString(outWriteStream.Val);
-        // _storedErr = new SString(errWriteStream.Val);
-        _hasBeenRun = true;
-    }*/
-    
-
     public override ITable ToTable()
     {
         return this;
-        /*if (!_hasBeenRun)
-            Run();
-        var table = new BaseTable();
-        
-        table.SetValue(new SString("out"), StoredOut);
-        table.SetValue(new SString("err"), _storedErr);
-        
-        return table;*/
     }
 
     public override SProcess ToSProcess() => this;
 
     public override bool IsEqual(IValue other) => this == other;
-    /*public IPipeline PipeInto(IPipeable rhspipeable)
-    {
-        var pipe = new Pipeline(this);
-        Console.WriteLine("Piping into process");
-        _externalProgram.ProcessExited += (sender, args) =>
-        {
-            Console.WriteLine("Process exited");
-            rhspipeable.OnStart += () => rhspipeable.PipeIn(PipeOut());
-            
-        };
-        //pipe.Add(rhspipeable);
-        return pipe;
-    }*/
 
     public IPipeline PipeInto(IPipeable rhspipeable)
     {
         throw new NotImplementedException();
     }
-
-    /*public void PipeIn(Stream pipeOut)
-    {
-        _externalProgram.PipeIn(pipeOut);
-    }
-
-    public Stream PipeOut()
-    {
-        return _externalProgram.PipeOut();
-    }*/
 }

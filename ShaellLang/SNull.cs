@@ -13,5 +13,9 @@ namespace ShaellLang
         {
             return other is SNull;
         }
+
+        public SNull() : base("null")
+        {
+        }
     }
 }

@@ -16,9 +16,12 @@ namespace ShaellLang
 		ITable ToTable();
 
 		SProcess ToSProcess();
+		
+		SString Serialize();
 
 		bool IsEqual(IValue other);
 
 		IValue Unpack();
+		string GetTypeName();
 	}
 }

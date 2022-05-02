@@ -1,16 +1,16 @@
 A:describe("Nested scope if loop", fn()
     let i = 2
     if let i = true then
-        A:assert("i should be from the if expr", i)
+        A:assert(i, "i should be from the if expr")
         let i = 4
-        A:assert("Should use current scope i", i == 4)
+        A:assert(i == 4, "Should use current scope i")
     else
-        A:assert("The scope from the if expression should be popped", i == 2)
+        A:assert(i == 2, "The scope from the if expression should be popped")
         let i = 5
-        A:assert("Should use current scope i", i == 5)
+        A:assert(i == 5, "Should use current scope i")
     end
     
-    A:assert("Scopes are popped", i == 2)
+    A:assert(i == 2, "Scopes are popped")
 end)
 
 A:describe("Nested scope for while loop", fn()
@@ -18,22 +18,22 @@ A:describe("Nested scope for while loop", fn()
     let b = true
     
     while b && (let i = 3) do
-        A:assert("Should use scope from while condition", i == 3)
+        A:assert(i == 3, "Should use scope from while condition")
         let i = 5
-        A:assert("Should use scope from while block", i == 5)
+        A:assert(i == 5, "Should use scope from while block")
         b = false
     end
     
-    A:assert("Scopes are popped", i == 1)
+    A:assert(i == 1, "Scopes are popped")
 end)
 
 A:describe("Nested scope for, for loop", fn()
     let i = 3
     for let i = 0, i < 1, i += 1 do
-        A:assert("Should use scope from for init expression", i == 0)
+        A:assert(i == 0, "Should use scope from for init expression")
         let i = 6
-        A:assert("Should use scope from for code block", i == 6)
+        A:assert(i == 6, "Should use scope from for code block")
     end
 
-    A:assert("Scopes are popped", i == 3)
+    A:assert(i == 3, "Scopes are popped")
 end)

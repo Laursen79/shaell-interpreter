@@ -204,7 +204,7 @@ namespace ShaellLang
             }
             Console.WriteLine(")");
             indentLevel += 1;
-            Visit(context.stmts());
+            Visit(context.functionBody());
             indentLevel -= 1;
             Console.WriteLine(indent + "end");
             return null;

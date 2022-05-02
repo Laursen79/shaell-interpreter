@@ -14,7 +14,7 @@ namespace ShaellLang
     internal class Pipeline : BaseTable, IPipeline
     {
         public List<IPipeable> Steps { get; set; } = new List<IPipeable>();
-        public Pipeline(IPipeable process, IPipeable nextProcess)
+        public Pipeline(IPipeable process, IPipeable nextProcess):base("pipeline")
         {
             Steps.Add(process);
             Steps.Add(nextProcess);

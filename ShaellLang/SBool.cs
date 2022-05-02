@@ -5,7 +5,7 @@ namespace ShaellLang;
 public class SBool : BaseValue
 {
     private bool _value;
-    public SBool(bool value)
+    public SBool(bool value):base("bool")
     {
         _value = value;
     }

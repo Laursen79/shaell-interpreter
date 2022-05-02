@@ -9,7 +9,7 @@ namespace ShaellLang
 	{
 		private NativeFuncCallHandler _callHandler;
 
-		public NativeFunc(NativeFuncCallHandler callHandler, uint argumentCount)
+		public NativeFunc(NativeFuncCallHandler callHandler, uint argumentCount): base("nativefunc")
 		{
 			_callHandler = callHandler;
 			ArgumentCount = argumentCount;

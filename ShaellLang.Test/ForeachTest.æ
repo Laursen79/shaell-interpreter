@@ -1,0 +1,53 @@
+A:describe("reconstruct table using a foreach loop", fn()
+    let t = {
+        foo = "bar",
+        baz = "qux",
+        [0] = 2,
+        [1] = 530,
+        [3] = 10,
+        [10] = "bar"
+    }
+
+    let copiedTable = {}
+    foreach key, val in t do
+        copiedTable[key] = val
+    end
+
+    A:tableEqual(t, copiedTable, "Table should be equal")
+end)
+
+A:describe("reconstruct key array using a foreach loop", fn()
+    let example = {
+        [0] = 2,
+        [1] = 530,
+        [2] = 391,
+        [3] = "job",
+        bom = "13",
+        [10] = "ting"
+    }
+    
+    let keys = {}
+    foreach key, value in example do
+        T:insert(keys, key)
+    end
+    
+    A:arrayEquivalent(keys, {[0] = 0, [1] = 1, [2] = 2, [3] = 3, [4] = "bom", [5] = 10}, "Keys should be equal")
+end)
+
+A:describe("reconstruct array of values using a foreach loop", fn()
+    let example = {
+        [0] = 2,
+        [1] = 530,
+        [2] = 391,
+        [3] = "job",
+        bom = "13",
+        [10] = "ting"
+    }
+    
+    let values = {}
+    foreach value in example do
+        T:insert(values, value)
+    end
+    
+    A:arrayEquivalent(values, {[0] = 2, [1] = 530, [2] = 391, [3] = "job", [4] = "13", [5] = "ting"}, "Keys should be equal")
+end)
