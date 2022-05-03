@@ -238,7 +238,7 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
 
         var value = lhs as RefValue;
         if (value == null)
-            throw new SemanticError("Tried to assignt to non ref", context.start, context.stop);
+            throw new SemanticError("Tried to assign to non ref", context.start, context.stop);
 
         RefValue refLhs = value;
 
@@ -338,7 +338,6 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
     public override IValue VisitPlusEqExpr(ShaellParser.PlusEqExprContext context)
     {
         var lhs = SafeVisit(context.expr(0));
-
         if (lhs is not RefValue)
             throw new SemanticError("Tried to assign to non ref", context.start, context.stop);
     
@@ -385,7 +384,6 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
         if (lhs is not RefValue)
             throw new SemanticError("Tried to assign to non ref", context.start, context.stop);
     
-    
         var refLhs = lhs as RefValue;
         
         var rhs = SafeVisit(context.expr(1));
@@ -407,7 +405,6 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
         if (lhs is not RefValue)
             throw new SemanticError("Tried to assign to non ref", context.start, context.stop);
     
-    
         var refLhs = lhs as RefValue;
         
         var rhs = SafeVisit(context.expr(1));
@@ -428,7 +425,7 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
 
         if (lhs is not RefValue)
             throw new SemanticError("Tried to assign to non ref", context.start, context.stop);
-
+    
         var refLhs = lhs as RefValue;
         
         var rhs = SafeVisit(context.expr(1));
@@ -504,7 +501,6 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
     {
         var lhs = SafeVisit(context.expr(0));
         var rhs = SafeVisit(context.expr(1));
-        
         return new SBool(lhs.IsEqual(rhs.Unpack()));
     }
 
@@ -583,14 +579,18 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
     public override IValue VisitPosExpr(ShaellParser.PosExprContext context)
     {
         var lhs = SafeVisit(context.expr());
-        return lhs.ToNumber();
+        if (lhs is Number)
+            return lhs;
+        return lhs.ToTable().GetValue(new SString("toNumber")).ToFunction().Call(new IValue[]{});
     }
     
     //Visit NegExpr and return the value with negative toNumber
     public override IValue VisitNegExpr(ShaellParser.NegExprContext context)
     {
         var lhs = SafeVisit(context.expr());
-        return -lhs.ToNumber();
+        if (lhs is Number)
+            return lhs;
+        return -(lhs.ToTable().GetValue(new SString("toNumber")).ToFunction().Call(new IValue[]{}) as Number);
     }
     
     //Visit the LORExpr and return the value of the left or right side with short circuiting
@@ -657,7 +657,7 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
                 _scopeManager.NewTopLevelValue(formalArgs[i].GetText(), new SNull());
         }
 
-        var argv = context.argv().IDENTIFIER().GetText();
+        var argv = context.argv()?.IDENTIFIER().GetText();
         
         if (argv != null)
         {
