@@ -1,3 +1,16 @@
 let i = 4
 
-print(i)
+fn test3()
+    let a = 4 + (2 / "3")
+end
+
+fn test2()
+    test3()
+end
+
+fn testing()
+   test2() 
+end
+
+
+testing()

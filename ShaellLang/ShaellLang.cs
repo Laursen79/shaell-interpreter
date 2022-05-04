@@ -21,10 +21,11 @@ namespace ShaellLang
             _executioner = new ExecutionVisitor(args.ToArray());
         }
 
-        private ShaellParser CreateParser(string code)
+        private ShaellParser CreateParser(string code, string sourceName)
         {
             _errorReporter = new ShaellErrorReporter();
             AntlrInputStream inputStream = new AntlrInputStream(code);
+            inputStream.name = sourceName;
             ShaellLexer shaellLexer = new ShaellLexer(inputStream);
             
             _errorReporter.SetErrorListener(shaellLexer);
@@ -55,9 +56,9 @@ namespace ShaellLang
             _executioner.SetGlobal(name, value);
         }
 
-        public IValue RunCode(string code)
+        public IValue RunCode(string code, string source = "<unknown>")
         {
-            var parser = CreateParser(code);
+            var parser = CreateParser(code, source);
             //If we just run code, we cant have the args() syntax
             //Therefore we just parse stmts
             var stmts = parser.stmts();
@@ -65,12 +66,12 @@ namespace ShaellLang
             {
                 throw new ShaellLangSyntaxException(_errorReporter);
             }
-            return _executioner.VisitStmts(stmts, false, true);
+            return _executioner.VisitStmts(stmts, false, "Top level block", true);
         }
 
         public IValue RunFile(string path)
         {
-            var parser = CreateParser(File.ReadAllText(path));
+            var parser = CreateParser(File.ReadAllText(path), path);
             var progContext = parser.prog();
             if (_errorReporter.HasErrors)
             {

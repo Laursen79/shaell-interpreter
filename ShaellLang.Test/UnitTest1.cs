@@ -11,6 +11,8 @@ public class UnitTest1
         shaellLang.LoadStdLib();
         
         shaellLang.RunFile("../../../OperatorTest.æ");
+        
+        Assert.False(TestLib.testFailed);
     }
     
     [Fact]
@@ -20,6 +22,8 @@ public class UnitTest1
         shaellLang.LoadStdLib();
 
         shaellLang.RunFile("../../../MetatableTest.æ");
+
+        Assert.False(TestLib.testFailed);
     }
 
     [Fact]
@@ -29,6 +33,8 @@ public class UnitTest1
         shaellLang.LoadStdLib();
 
         shaellLang.RunFile("../../../StringInterpolationTest.æ");
+        
+        Assert.False(TestLib.testFailed);
     }
     
     [Fact]
@@ -38,6 +44,8 @@ public class UnitTest1
         shaellLang.LoadStdLib();
 
         shaellLang.RunFile("../../../ScopeTest.æ");
+        
+        Assert.False(TestLib.testFailed);
     }
 
     [Fact]
@@ -47,6 +55,8 @@ public class UnitTest1
         shaellLang.LoadStdLib();
 
         shaellLang.RunFile("../../../ForeachTest.æ");
+        
+        Assert.False(TestLib.testFailed);
     }
     
     
@@ -57,5 +67,7 @@ public class UnitTest1
         shaellLang.LoadStdLib();
 
         shaellLang.RunFile("../../../TryThrowTest.æ");
+        
+        Assert.False(TestLib.testFailed);
     }
 }

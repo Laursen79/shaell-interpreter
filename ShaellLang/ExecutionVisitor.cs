@@ -35,25 +35,28 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
         _scopeManager = scopeManager;
         _shouldReturn = false;
     }
-
+    
     private IValue SafeVisit(ParserRuleContext context)
     {
+        IValue rv;
         try
         {
-            return Visit(context);
+            rv = Visit(context);
         }
-        catch (ShaellException)
+        catch (StackTracedException ex)
         {
-            throw;
-        }
-        catch (SemanticError)
-        {
+            var type = context.GetType();
+            ex.AddTrace(context, $"Error in " + type.Name);
             throw;
         }
         catch (Exception ex)
         {
-            throw new SemanticError(ex.ToString(), context.start, context.stop);
+            var newError = new SemanticError(ex.ToString(), context.start, context.stop);
+            newError.AddTrace(context, "Source of error");
+            throw newError;
         }
+
+        return rv;
     }
     
     public void SetGlobal(string key, IValue val)
@@ -65,19 +68,37 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
     {
         if (context.children.Count == 2)
             VisitProgramArgs(context.programArgs());
-        return VisitStmts(context.stmts(), false);
+        return VisitStmts(context.stmts(), false, "Top level");
     }
 
-    public IValue VisitStmts(ShaellParser.StmtsContext context, bool scoper, bool implicitReturn = false)
+    public IValue VisitStmts(ShaellParser.StmtsContext context, bool scoper, string name, bool implicitReturn = false)
     {
         if (scoper)
             _scopeManager.PushScope(new ScopeContext());
         IValue rv = null;
         foreach (var stmt in context.stmt())
         {
-            rv = SafeVisit(stmt);
-            if (_shouldReturn) //TODO: return statement w/o expr equates to 0?
+            try
+            {
+                rv = Visit(stmt);
+            }
+            catch (StackTracedException ex)
+            {
+                ex.AddTrace(context, name);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                var newError = new SemanticError(ex.ToString(), stmt.start, stmt.stop);
+                newError.AddTrace(context, name);
+                throw newError;
+            }
+
+            if (_shouldReturn)//TODO: return statement w/o expr equates to 0?}
+            {
+                _scopeManager.PopScope();
                 return rv;
+            }
         }
         if (scoper)
             _scopeManager.PopScope();
@@ -85,12 +106,13 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
             return rv;
         return null;
     }
-    public override IValue VisitStmts(ShaellParser.StmtsContext context) => VisitStmts(context, true);
+    public override IValue VisitStmts(ShaellParser.StmtsContext context) => VisitStmts(context, true, "Anonymous block");
 
     public override IValue VisitStmt(ShaellParser.StmtContext context)
     {
         if (context.children.Count == 1)
         {
+            
             var child = Visit(context.children[0]);
             if (child is SProcess proc)
                 return proc.Execute().ToJobObject();
@@ -106,9 +128,9 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
         var val = SafeVisit(context.expr()).ToBool();
         IValue rv = null;
         if (val)
-            rv = VisitStmts(stmts[0]);
+            rv = VisitStmts(stmts[0], true, "If true block");
         else if (stmts.Length > 1)
-            rv = VisitStmts(stmts[1]);
+            rv = VisitStmts(stmts[1], true, "Else block");
         _scopeManager.PopScope();
         return rv;
     }
@@ -119,7 +141,7 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
         SafeVisit(context.expr()[0]);
         while (SafeVisit(context.expr()[1]).ToBool())
         {
-            var rv = SafeVisit(context.stmts());
+            var rv = VisitStmts(context.stmts(), true, "for loop block");
             if (_shouldReturn)
                 return rv;
             SafeVisit(context.expr()[2]);
@@ -136,7 +158,7 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
         {
             _scopeManager.PushScope(new ScopeContext());
             _scopeManager.NewTopLevelValue(context.IDENTIFIER().GetText(), table.GetValue(key));
-            var rv = SafeVisit(context.stmts());
+            var rv = VisitStmts(context.stmts(), true, "Foreach loop block");
             _scopeManager.PopScope();
             if (_shouldReturn)
                 return rv;
@@ -154,7 +176,7 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
             _scopeManager.PushScope(new ScopeContext());
             _scopeManager.NewTopLevelValue(context.IDENTIFIER(0).GetText(), key);
             _scopeManager.NewTopLevelValue(context.IDENTIFIER(1).GetText(), table.GetValue(key));
-            var rv = SafeVisit(context.stmts());
+            var rv = VisitStmts(context.stmts(), true, "Foreach loop block");
             _scopeManager.PopScope();
             if (_shouldReturn)
             {
@@ -170,7 +192,7 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
         _scopeManager.PushScope(new ScopeContext());
         while (SafeVisit(context.expr()).ToBool())
         {
-            var rv = SafeVisit(context.stmts());
+            var rv = VisitStmts(context.stmts(), true, "While loop block");
             if (_shouldReturn)
                 return rv;
         }
@@ -199,8 +221,9 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
                 _globalScope, 
                 context.functionBody(),
                 _scopeManager.CopyScopes(), 
-                formalArgIdentifiers
-                )
+                formalArgIdentifiers,
+                context.IDENTIFIER().GetText()
+            )
         );
         
         return null;
@@ -218,15 +241,24 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
             _globalScope,
             context.functionBody(),
             _scopeManager.CopyScopes(),
-            formalArgIdentifiers
+            formalArgIdentifiers,
+            "Anonymous"
         );
     }
     public override IValue VisitFunctionBody(ShaellParser.FunctionBodyContext context)
     {
         if (context.LAMBDA() == null)
-            return SafeVisit(context.stmts());
+            return VisitStmts(context.stmts(), true, "Function body");
         return SafeVisit(context.expr());
     }
+    
+    public IValue VisitFunctionBody(ShaellParser.FunctionBodyContext context, string name)
+    {
+        if (context.LAMBDA() == null)
+            return VisitStmts(context.stmts(), true, "Function block for " + name);
+        return SafeVisit(context.expr());
+    }
+    
     public override IValue VisitExpr(ShaellParser.ExprContext context)
     {
         throw new Exception("nejnejnej");
@@ -700,7 +732,7 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
 
         try
         {
-            var thing = VisitStmts(context.stmts(), true, true);
+            var thing = VisitStmts(context.stmts(), true, "Try block", true);
             rv.SetValue(new SString("value"), thing);
             rv.SetValue(new SString("status"), new Number(0));
         }
