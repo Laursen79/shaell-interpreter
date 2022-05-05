@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 
@@ -14,14 +15,7 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
     private ScopeManager _scopeManager;
     private ScopeContext _globalScope;
     private bool _shouldReturn = false;
-    private string[] _args;
-    public ExecutionVisitor(string[] args)
-    {
-        _globalScope = new ScopeContext();
-        _scopeManager = new ScopeManager();
-        _scopeManager.PushScope(_globalScope);
-        _args = args;
-    }
+    
     public ExecutionVisitor()
     {
         _globalScope = new ScopeContext();
@@ -680,27 +674,23 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
     public override IValue VisitProgramArgs(ShaellParser.ProgramArgsContext context)
     {
         var formalArgs = context.innerFormalArgList().IDENTIFIER();
-        int i = 0;
-        for (; i < formalArgs.Length; i++)
+        
+        var args = ArgumentsParser.Arguments;
+        var table = new UserTable();
+        for (var i = 0; i < args.Length; i++)
         {
-            if (i < _args.Length)
-                _scopeManager.NewTopLevelValue(formalArgs[i].GetText(), new SString(_args[i]));
-            else
-                _scopeManager.NewTopLevelValue(formalArgs[i].GetText(), new SNull());
+            if (i < formalArgs.Length)
+                table.SetValue(new SString(formalArgs[i].GetText()), new SString(args[i]));
+
+            table.SetValue(new Number(i), new RefValue(new SString(args[i])));
         }
 
         var argv = context.IDENTIFIER().GetText();
-        
-        var table = new UserTable();
-        for (; i < _args.Length; i++)
-        {
-            table.SetValue(new Number(i-formalArgs.Length), new RefValue(new SString(_args[i])));
-        }
-
         _scopeManager.NewTopLevelValue(argv, table);
-
+        
         return null;
     }
+    
 
     public override IValue VisitFieldExpr(ShaellParser.FieldExprContext context) => SafeVisit(context.expr());
 
