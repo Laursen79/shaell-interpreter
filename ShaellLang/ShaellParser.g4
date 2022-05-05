@@ -63,9 +63,7 @@ objfields:
     ;
 innerArgList: (expr (COMMA expr)*)?;
 innerFormalArgList: (IDENTIFIER (COMMA IDENTIFIER)*)?;
-argv: BOR IDENTIFIER;
-programArgs: ARGS LPAREN innerFormalArgList RPAREN
-    | ARGS LPAREN innerFormalArgList argv RPAREN;
+programArgs: ARGS IDENTIFIER innerFormalArgList END;
 ifStmt: IF expr THEN stmts (ELSE stmts)? END;
 forLoop: FOR expr COMMA expr COMMA expr DO stmts END;
 foreach: FOREACH IDENTIFIER IN expr DO stmts END;
