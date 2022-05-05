@@ -18,7 +18,9 @@ namespace ShaellLang
         
         public ShaellLang(IEnumerable<string> args)
         {
-            _executioner = new ExecutionVisitor(args.ToArray());
+            var argarr = args as string[] ?? args.ToArray();
+            ArgumentsParser.Parse(argarr);
+            _executioner = new ExecutionVisitor();
         }
 
         private ShaellParser CreateParser(string code, string sourceName)

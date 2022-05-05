@@ -22,7 +22,7 @@ FUNCTION: 'fn';
 GLOBAL: 'global';
 ASYNC: 'async';
 DEFER: 'defer';
-ARGS: 'define_args';
+ARGS: 'args';
 LET: 'let';
 LPAREN: '(';
 RPAREN: ')';
