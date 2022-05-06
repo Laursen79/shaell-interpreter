@@ -18,7 +18,7 @@ namespace ShaellLang
 
 		//Implement IFunction
 		
-		public IValue Call(IEnumerable<IValue> args) => new JobObject(_callHandler(args));
+		public IValue Call(IEnumerable<IValue> args) => _callHandler(args);
 		
 
 		public uint ArgumentCount {  get; private set; }

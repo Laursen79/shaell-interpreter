@@ -30,4 +30,8 @@
     <Content Include="ShaellParser.g4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PipeHelper\PipeHelper.csproj" />
+  </ItemGroup>
+
 </Project>

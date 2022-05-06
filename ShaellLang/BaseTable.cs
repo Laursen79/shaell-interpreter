@@ -177,6 +177,11 @@ public class BaseTable : BaseValue, ITable
 
     public override string ToString()
     {
+        return Serialize().Val;
+    }
+
+    public override SString Serialize()
+    {
         var rv = "{";
 
         var keys = GetKeys().ToArray();
@@ -186,6 +191,6 @@ public class BaseTable : BaseValue, ITable
             rv += $"[{key.Serialize()}] = {GetValue(key).Serialize()},";
         }
         
-        return rv + "}";
+        return new SString(rv + "}");
     }
 }

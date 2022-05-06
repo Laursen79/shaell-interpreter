@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace ShaellLang;
 
@@ -85,13 +87,30 @@ public class SFile : BaseValue
     }
 
     public override bool ToBool() => true;
-    
-    //TODO: Process skal tage cwd i mente når den køre, men siden det nye ikke er inde så kan jeg ikke fikse
-    public override IFunction ToFunction() => new SProcess(_path);
 
+    public string GetProgramPath()
+    {
+        IPathFinder pathFinder;
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            pathFinder = new WindowsPathFinder();
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            pathFinder = new UnixPathFinder();
+        else
+            throw new Exception("Unsupported platform");
+
+        var oldCwd = Environment.CurrentDirectory;
+        Environment.CurrentDirectory = _cwd;
+        var path = pathFinder.GetAbsolutePath(_path);
+        Environment.CurrentDirectory = oldCwd;
+        
+        return path;
+    }
+    
     public override SString ToSString() => new SString($"(FilePath \"{_path}\" relative to \"{_cwd}\")");
 
     public override ITable ToTable() => _table;
+
+    public override SFile ToSFile() => this;
     
     public override bool IsEqual(IValue other)
     {

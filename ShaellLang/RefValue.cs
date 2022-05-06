@@ -1,10 +1,9 @@
 ﻿namespace ShaellLang;
 
-public class RefValue : BaseValue
+public class RefValue : IValue
 {
     private IValue _realValue;
     public RefValue(IValue val)
-        : base("refvalue")
     {
         _realValue = val;
     }
@@ -15,13 +14,11 @@ public class RefValue : BaseValue
         return _realValue;
     }
 
-    public IValue Get()
-    {
-        return _realValue;
-        
-    }
+    public IValue Get() => _realValue;
 
-    public override IValue Unpack()
+    public string GetTypeName() => _realValue.GetTypeName();
+
+    public IValue Unpack()
     {
         if (_realValue is RefValue realRefValue)
         {
@@ -33,28 +30,21 @@ public class RefValue : BaseValue
         }
     }
 
-    public override bool ToBool() => _realValue.ToBool();
+    public bool ToBool() => _realValue.ToBool();
 
-    public override Number ToNumber() => _realValue.ToNumber();
+    public Number ToNumber() => _realValue.ToNumber();
 
-    public override IFunction ToFunction() => _realValue.ToFunction();
+    public IFunction ToFunction() => _realValue.ToFunction();
 
-    public override SString ToSString() => _realValue.ToSString();
+    public SString ToSString() => _realValue.ToSString();
 
-    public override ITable ToTable() => _realValue.ToTable();
+    public ITable ToTable() => _realValue.ToTable();
 
-    public override bool IsEqual(IValue other)
-    {
-        return _realValue.IsEqual(other);
-    }
+    public SFile ToSFile() => _realValue.ToSFile();
 
-    public override string ToString()
-    {
-        return _realValue.ToString();
-    }
+    public bool IsEqual(IValue other) => _realValue.IsEqual(other);
 
-    public override SString Serialize()
-    {
-        return _realValue.Serialize();
-    }
+    public override string ToString() => _realValue.ToString();
+
+    public SString Serialize() => _realValue.Serialize();
 }

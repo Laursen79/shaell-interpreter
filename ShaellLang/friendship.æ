@@ -1,16 +1,56 @@
-let i = 4
+#!/usr/bin/env shæll
 
-fn test3()
-    let a = 4 + (2 / "3")
+define_args args
+    username
 end
 
-fn test2()
-    test3()
+fn strip_whitespace(str)
+    exec echo with (str) -> exec xargs -> let rv
+    return rv
 end
 
-fn testing()
-   test2() 
+fn startswith(str, startstr)
+    return str:substring(0, startstr:length()) == str
 end
 
+if args:length() == 0 then
+	exec echo with ("expected username as argument")
+	exit(1)
+end
 
-testing()
+let color_fix = "<span> </span>"
+
+let status = exec sts with ("-u", args:username, "-b", "--strandvejen") -> let sts_out
+
+if status != 0 then
+	exec echo with ("${color_fix}<span color='#02bfe7'> with  with </span> -\$")
+	exec echo with ("---")
+	exec echo with ("fejl: ${strip_whitespace(sts_out)}")
+	exit(0)
+end
+
+let sportcola_pris = 6
+let balance = +strip_whitespace(sts_out)
+let sportcola_koefficient = balance / sportcola_pris
+
+if sportcola_koefficient < 1 then
+	exec echo with ("${color_fix}<span color='#F00'>${balance} -\$!!!!</span>")
+else
+  if sportcola_koefficient < 2 then
+	  exec echo with ("${color_fix}<span color='#FA0'>${balance}</span> -\$")
+  else
+	  exec echo with ("${color_fix}<span color='#0F0'>${balance}</span> -\$")
+  end
+end
+exec echo with ("---")
+
+let korrekt_grammatik
+
+if sportcola_koefficient == 1 then
+	korrekt_grammatik = "sportcola"
+else
+	korrekt_grammatik = "sportcolaer"
+end
+
+exec printf with ("Du kan købe %.2f ${korrekt_grammatik}\n", sportcola_koefficient)
+exec echo with ("Stregsystem hjemmeside | href='https://stregsystem.fklub.dk/10/sale/4063/'")

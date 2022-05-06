@@ -15,12 +15,10 @@ namespace ShaellLang
 
 		ITable ToTable();
 
-		JobObject ToJobObject();
-
-		SProcess ToSProcess();
-		
 		SString Serialize();
 
+		SFile ToSFile();
+		
 		bool IsEqual(IValue other);
 
 		string GetTypeName();

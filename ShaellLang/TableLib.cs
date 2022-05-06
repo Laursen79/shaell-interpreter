@@ -21,8 +21,25 @@ public class TableLib
             .GetValue(new SString("set_meta_table"))
             .Set(new NativeFunc(SetMetaTable, 2));
 
+        userTable
+            .GetValue(new SString("serialize"))
+            .Set(new NativeFunc(SerializeFunc, 1));
         return userTable;
     }
+
+    private static IValue SerializeFunc(IEnumerable<IValue> args)
+    {
+        var argArr = args.ToArray();
+        if (argArr.Length != 1)
+            throw new ShaellException(new SString("Function only takes 1 table as argument"));
+        var unpacked = argArr[0].ToTable();
+        if (unpacked is not UserTable)
+        {
+            throw new ShaellException(new SString("Can only serialize user tables"));
+        }
+        return (unpacked as UserTable).Serialize();
+    }
+
     private static IValue InsertFunc(IEnumerable<IValue> args)
     {
         var argArr = args.ToArray();

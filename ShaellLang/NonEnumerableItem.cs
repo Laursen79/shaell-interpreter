@@ -38,10 +38,8 @@ public class NonEnumerableItem : IValue
     public SString ToSString() => _realValue.ToSString();
 
     public ITable ToTable() => _realValue.ToTable();
-    
-    public JobObject ToJobObject() => _realValue.ToJobObject();
 
-    public SProcess ToSProcess() => _realValue.ToSProcess();
+    public SFile ToSFile() => _realValue.ToSFile();
 
     public bool IsEqual(IValue other) => _realValue.IsEqual(other);
 

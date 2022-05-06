@@ -16,8 +16,11 @@ internal class ShaellParserErrorListener : IAntlrErrorListener<IToken>
     public void SyntaxError(IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg,
         RecognitionException e)
     {
-        var prevToken =((ITokenStream)recognizer.InputStream).Lt(-1).Text;
-        errorReporter.ReportError(new ShaellError($"Unexpected token {offendingSymbol.Text} following {prevToken} on line {line}:{charPositionInLine}",e));
-
+        
+        var prevToken =((ITokenStream)recognizer.InputStream).Lt(-1);
+        if (prevToken != null)
+            errorReporter.ReportError(new ShaellError($"Unexpected token {offendingSymbol.Text} following {prevToken} on line {line}:{charPositionInLine}",e));
+        else 
+            errorReporter.ReportError(new ShaellError($"Unexpected token {offendingSymbol.Text} on line {line}:{charPositionInLine}",e));
     }
 }

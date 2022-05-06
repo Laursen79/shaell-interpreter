@@ -29,7 +29,10 @@ namespace ShaellLang
             AntlrInputStream inputStream = new AntlrInputStream(code);
             inputStream.name = sourceName;
             ShaellLexer shaellLexer = new ShaellLexer(inputStream);
-            
+            /*foreach (var token in shaellLexer.GetAllTokens())
+            {
+                Console.WriteLine(token);
+            }*/
             _errorReporter.SetErrorListener(shaellLexer);
             
             CommonTokenStream commonTokenStream = new CommonTokenStream(shaellLexer);

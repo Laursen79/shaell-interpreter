@@ -13,7 +13,6 @@ public class SBool : BaseValue
 
 
     public override bool ToBool() => _value;
-    public override Number ToNumber() => _value ? new Number(1) : new Number(0);
 
     public override SString ToSString() => new SString(_value ? "true" : "false");
 

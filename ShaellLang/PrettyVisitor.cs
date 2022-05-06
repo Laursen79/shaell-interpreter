@@ -209,17 +209,7 @@ namespace ShaellLang
             Console.WriteLine(indent + "end");
             return null;
         }
-
-        public override object VisitPIPEExpr(ShaellParser.PIPEExprContext context)
-        {
-            Console.Write("(");
-            Visit(context.expr(0));
-            Console.Write("->");
-            Visit(context.expr(1));
-            Console.Write(")");
-            return 0;
-        }
-
+        
         public override object VisitAssignExpr(ShaellParser.AssignExprContext context)
         {
             Console.Write("(");

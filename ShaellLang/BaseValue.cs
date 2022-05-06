@@ -19,12 +19,11 @@ public abstract class BaseValue : IValue
 
     public virtual ITable ToTable() => throw new ShaellConversionException(_typeName, "table");
 
-    public virtual JobObject ToJobObject() => throw new ShaellConversionException(_typeName, "jobobject");
-    public virtual SProcess ToSProcess() => throw new ShaellConversionException(_typeName, "process");
-
+    public virtual SFile ToSFile() => throw new ShaellConversionException(_typeName, "file");
+    
     public override string ToString() => ToSString().Val;
 
-    public virtual SString Serialize() => throw new Exception("Cannot serialize base value");
+    public virtual SString Serialize() => throw new Exception($"Cannot serialize {_typeName}");
 
     public abstract bool IsEqual(IValue other);
     

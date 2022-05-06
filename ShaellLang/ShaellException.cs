@@ -8,10 +8,12 @@ namespace ShaellLang;
 public class ShaellException : StackTracedException
 {
     public IValue ExceptionValue { get; }
+    public int ErrorCode { get; }
 
-    public ShaellException(IValue exceptionValue) : base("Shaell error was thrown")
+    public ShaellException(IValue exceptionValue, int errorCode = 1) : base("Shaell error was thrown")
     {
         ExceptionValue = exceptionValue;
+        ErrorCode = errorCode;
     }
 
     public override string ToString()

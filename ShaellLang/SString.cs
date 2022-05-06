@@ -27,7 +27,7 @@ public class SString : BaseValue, ITable
         Number[] args = argCollection.ToArray().Select(x => x.ToNumber()).ToArray();
         return new SString(Val.Substring((int) args[0].ToInteger(), (int) args[1].ToInteger()));
     }
-    private IValue ToNumberFunc(IEnumerable<IValue> argCollection)
+    public IValue ToNumberFunc(IEnumerable<IValue> argCollection)
     {
         if (int.TryParse(_val, out int resultInt))
             return new Number(resultInt);
