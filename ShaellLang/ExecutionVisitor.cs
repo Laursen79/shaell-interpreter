@@ -265,10 +265,8 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
         RefValue refLhs = value;
 
         var rhs = SafeVisit(context.expr(1));
-        if (rhs is RefValue)
-            rhs = (rhs as RefValue).Get();
-        
-        refLhs.Set(rhs);
+
+        refLhs.Set(rhs.Unpack());
 
         return refLhs.Get();
     }

@@ -34,9 +34,12 @@ public class UserFunc : BaseValue, IFunction
         ScopeManager activeScopeManager = _capturedScope.CopyScopes();
         activeScopeManager.PushScope(new ScopeContext());
         var arr = args.ToArray();
-        for (var i = 0; i < arr.Length && i < _formalArguments.Count; i++)
+        for (var i = 0; i < _formalArguments.Count; i++)
         {
-            activeScopeManager.NewTopLevelValue(_formalArguments[i], arr[i]);
+            if (i < arr.Length)
+                activeScopeManager.NewTopLevelValue(_formalArguments[i], arr[i]);
+            else
+                activeScopeManager.NewTopLevelValue(_formalArguments[i], new SNull());
         }
 
         var executioner = new ExecutionVisitor(_globalScope, activeScopeManager);

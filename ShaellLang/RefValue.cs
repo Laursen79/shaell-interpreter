@@ -2,49 +2,55 @@
 
 public class RefValue : IValue
 {
-    private IValue _realValue;
+    protected virtual IValue _RealValue { get; set; }
+
+    protected RefValue()
+    {
+        
+    }
+    
     public RefValue(IValue val)
     {
-        _realValue = val;
+        _RealValue = val;
     }
     
     public IValue Set(IValue newValue)
     {
-        _realValue = newValue;
-        return _realValue;
+        _RealValue = newValue;
+        return _RealValue;
     }
 
-    public IValue Get() => _realValue;
+    public IValue Get() => _RealValue;
 
-    public string GetTypeName() => _realValue.GetTypeName();
+    public string GetTypeName() => _RealValue.GetTypeName();
 
     public IValue Unpack()
     {
-        if (_realValue is RefValue realRefValue)
+        if (_RealValue is RefValue realRefValue)
         {
             return realRefValue.Unpack();
         }
         else
         {
-            return _realValue;
+            return _RealValue;
         }
     }
 
-    public bool ToBool() => _realValue.ToBool();
+    public bool ToBool() => _RealValue.ToBool();
 
-    public Number ToNumber() => _realValue.ToNumber();
+    public Number ToNumber() => _RealValue.ToNumber();
 
-    public IFunction ToFunction() => _realValue.ToFunction();
+    public IFunction ToFunction() => _RealValue.ToFunction();
 
-    public SString ToSString() => _realValue.ToSString();
+    public SString ToSString() => _RealValue.ToSString();
 
-    public ITable ToTable() => _realValue.ToTable();
+    public ITable ToTable() => _RealValue.ToTable();
 
-    public SFile ToSFile() => _realValue.ToSFile();
+    public SFile ToSFile() => _RealValue.ToSFile();
 
-    public bool IsEqual(IValue other) => _realValue.IsEqual(other);
+    public bool IsEqual(IValue other) => _RealValue.IsEqual(other);
 
-    public override string ToString() => _realValue.ToString();
+    public override string ToString() => _RealValue.ToString();
 
-    public SString Serialize() => _realValue.Serialize();
+    public SString Serialize() => _RealValue.Serialize();
 }
