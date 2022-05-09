@@ -129,6 +129,7 @@ public static class TestLib
             Console.ResetColor();
             Console.WriteLine(e);
             testFailed = true;
+            throw new Exception("Test failed");
         }
         
         return new SNull();

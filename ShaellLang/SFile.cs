@@ -12,11 +12,16 @@ public class SFile : BaseValue
     private string _path;
     private NativeTable _table;
     private string _cwd;
+    private string _absoluteFilePath;
     public SFile(string path, string cwd) : base("file")
     {
         _path = path;
         _cwd = cwd;
         GenerateFileValues();
+        string oldCwd = Directory.GetCurrentDirectory();
+        Environment.CurrentDirectory = _cwd;
+        _absoluteFilePath = Path.GetFullPath(_path);
+        Environment.CurrentDirectory = oldCwd;
     }
     
     private void GenerateFileValues()
@@ -26,13 +31,11 @@ public class SFile : BaseValue
         _table.SetValue("delete", new NativeFunc( DeleteFunc, 0));
         _table.SetValue("readToEnd", new NativeFunc( ReadToEndFunc, 0));
         _table.SetValue("append", new NativeFunc( AppendFunc, 1));
-        _table.SetValue("openReadStream", new NativeFunc( OpenReadStreamFunc, 0));
-        _table.SetValue("openWriteStream", new NativeFunc( OpenWriteSteamFunc, 0));
         _table.SetValue("size", new NativeFunc( SizeFunc, 2));
         _table.SetValue("exists", new NativeFunc( ExistsFunc, 0));
     }
 
-    private string RealPath => Path.Join(_cwd, _path);
+    private string RealPath => _absoluteFilePath;
 
     private IValue ExistsFunc(IEnumerable<IValue> argCollection)
     {
@@ -44,28 +47,19 @@ public class SFile : BaseValue
         return new Number(new FileInfo(RealPath).Length);
     }
 
-    private IValue OpenWriteSteamFunc(IEnumerable<IValue> argCollection)
-    {
-        throw new NotImplementedException();
-    }
-
-    private IValue OpenReadStreamFunc(IEnumerable<IValue> argCollection)
-    {
-        throw new NotImplementedException();
-    }
-
     private IValue AppendFunc(IEnumerable<IValue> argCollection)
     {
         StreamWriter f = new FileInfo(RealPath).AppendText();
-        f.WriteLine(argCollection.ToArray()[0].ToSString().Val);
+        f.Write(argCollection.ToArray()[0].ToSString().Val);
         f.Flush();
+        f.Close();
         return new SNull();
     }
 
     private IValue ReadToEndFunc(IEnumerable<IValue> argCollection)
     {
         if (!File.Exists(RealPath)) throw new Exception("No file");
-        return new BString(File.ReadAllText(_path));
+        return new BString(File.ReadAllBytes(RealPath));
     }
 
     private IValue DeleteFunc(IEnumerable<IValue> argCollection)
@@ -82,6 +76,8 @@ public class SFile : BaseValue
 
         byte[] buffer = new byte[args[0]];
         fs.Read(buffer, 0, (int) args[0]);
+        
+        fs.Close();
 
         return new BString(buffer);
     }

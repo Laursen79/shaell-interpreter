@@ -1,9 +1,11 @@
-fn DerefTest()
-    let program = "../../../file.æ"
-    let file1 = @program
-    A:assertType(file1, file, "Dereferencing a user function should return a user function")
-    let result = file1()
-    A:assertType(result, string, "Dereferencing a user function should return a string")
-end
+let testFile1Path = "../../../TestFiles/testfile1.txt"
+A:describe("Read a file", fn()
+    let file = @testFile1Path
+    
+    A:assertType(file, "file", "Dereferencing a string should return a file")
 
-A:describe("Test dereference operator", DerefTest)
+    let content = file:readToEnd()
+    A:assertType(content, "bstring", "Reading a file should return a bstring")
+    
+    A:assert(content:toSString() == "Hello world!", "File should contain 'Hello world!'")
+end)

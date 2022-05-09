@@ -1,0 +1,18 @@
+A:describe("Dynamic type system test", fn()
+    let a = "hello"
+    A:assertType(a, "string", "Type test string")
+    a = 2
+    A:assertType(a, "number", "Type test number")
+    a = true
+    A:assertType(a, "bool", "Type test bool")
+    a = false
+    A:assertType(a, "bool", "Type test bool")
+    a = "I am number " + 2
+    A:assertType(a, "string", "Type test string")
+    a = "I am number " + 2 + " and I am a string"
+    A:assertType(a, "string", "Type test string")
+    a = fn() 
+        return "I am a function"
+    end
+    A:assertType(a, "userfunc", "Type test userfunc")
+end)

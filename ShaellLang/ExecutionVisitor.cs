@@ -612,7 +612,7 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
         var lhs = SafeVisit(context.expr());
         if (lhs is Number)
             return -lhs.ToNumber();
-        return -(lhs.ToSString().ToNumberFunc(Enumerable.Empty<IValue>()) as Number);
+        return -lhs.ToSString().ToNumberFunc(Enumerable.Empty<IValue>()).ToNumber();
     }
     
     //Visit the LORExpr and return the value of the left or right side with short circuiting

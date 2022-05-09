@@ -14,13 +14,13 @@ namespace ShaellLang
         }
 
         public Number(long value)
-            : base("integernumber")
+            : base("number")
         {
             _numberRepresentation = value;
         }
 
         public Number(double value)
-            : base("floatingnumber")
+            : base("number")
         {
             _numberRepresentation = value;
         }

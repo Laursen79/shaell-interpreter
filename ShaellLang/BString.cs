@@ -24,22 +24,30 @@ public class BString : BaseValue, ITable
     private IValue ToSStringFunc(IEnumerable<IValue> argCollection)
     {
         Encoding e;
-        switch (argCollection.ToArray()[0].ToSString().Val.ToLower())
+        var args = argCollection.ToArray();
+        if (args.Length >= 1)
         {
-            case "ascii":
-                e = new ASCIIEncoding();
-                break;
-            case "utf-8":
-                e = new UTF8Encoding();
-                break;
-            case "utf-16":
-                e = new UnicodeEncoding();
-                break;
-            case "utf-32":
-                e = new UTF32Encoding();
-                break;
-            default:
-                throw new Exception("Wrong encoding");
+            switch (args[0].ToSString().Val.ToLower())
+            {
+                case "ascii":
+                    e = new ASCIIEncoding();
+                    break;
+                case "utf-8":
+                    e = new UTF8Encoding();
+                    break;
+                case "utf-16":
+                    e = new UnicodeEncoding();
+                    break;
+                case "utf-32":
+                    e = new UTF32Encoding();
+                    break;
+                default:
+                    throw new ShaellException(new SString("Wrong encoding"));
+            }
+        }
+        else
+        {
+            e = new UTF8Encoding();
         }
 
         return new SString(e.GetString(_buffer));

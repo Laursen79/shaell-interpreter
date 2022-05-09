@@ -1,18 +1,23 @@
-fn FileAppendTest()
-    #touch("../../../FileOperationsTest/file1.æ")
-    let file1 = "../../../FileOperationsTest/file1.æ"
-    #@file1:append("Hello ")
-    if @file1:exists() then
-        @file1:append(@"../../../FileOperationsTest/file2.æ":readToEnd())
-        let string = @file1:read(12,0)
-        print(string:toSString("utf-8"))
-        A:assert(string:toSString("utf-8") == "Hello world!", "FileAppendTest")   
-    else 
-        A:assert(1 == 0, "File1 doesn't exists")
-    end
-    print("File1.æ is now " + @file1:size() + " bytes.")
-    file1 = @file1
-    #file1:delete()
-end
+let file1 = @"file1.txt"
 
-A:describe("Append text to a file test", FileAppendTest)
+A:describe("Create file and check if it exists", fn()
+    file1:delete()
+    A:assert(!file1:exists(), "File1 should not exist")
+    file1:append("")
+    A:assert(file1:exists(), "File1 should exist")
+    file1:delete()
+end)
+
+A:describe("Create file, write and read it", fn()
+    A:assert(!file1:exists(), "File1 should not exist")
+    file1:append("foo bar")
+    A:assert(file1:readToEnd():toSString() == "foo bar", "File1 should contain 'foo bar'")
+    file1:delete()
+end)
+
+A:describe("Create file and measure the size", fn()
+    A:assert(!file1:exists(), "File1 should not exist")
+    file1:append("foo bar")
+    A:assert(file1:size() == file1:readToEnd():toSString():length(), "File1 should be correct size")
+    file1:delete()
+end)

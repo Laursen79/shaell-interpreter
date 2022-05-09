@@ -51,11 +51,16 @@ namespace ShaellLang
             _executioner.SetGlobal("print", new NativeFunc(StdLib.PrintFunc, 0));
             _executioner.SetGlobal("cd", new NativeFunc(StdLib.CdFunc, 0));
             _executioner.SetGlobal("exit", new NativeFunc(StdLib.ExitFunc, 0));
-            _executioner.SetGlobal("debug_break", new NativeFunc(StdLib.DebugBreakFunc, 0));
             _executioner.SetGlobal("T", TableLib.CreateLib());
+            
+        }
+
+        public void LoadTestLib()
+        {
+            _executioner.SetGlobal("debug_break", new NativeFunc(StdLib.DebugBreakFunc, 0));
             _executioner.SetGlobal("A", TestLib.CreateLib());
         }
-        
+
         public void SetGlobal(string name, IValue value)
         {
             _executioner.SetGlobal(name, value);
