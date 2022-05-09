@@ -601,7 +601,7 @@ public class ExecutionVisitor : ShaellParserBaseVisitor<IValue>
         var lhs = SafeVisit(context.expr());
         if (lhs is Number)
             return lhs;
-        return lhs.ToTable().GetValue(new SString("toNumber")).ToFunction().Call(new IValue[]{});
+        return lhs.ToSString().ToNumberFunc(Enumerable.Empty<IValue>()).ToNumber();
     }
     
     //Visit NegExpr and return the value with negative toNumber
