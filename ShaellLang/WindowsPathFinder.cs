@@ -8,7 +8,10 @@ public class WindowsPathFinder : IPathFinder
 {
     public string GetAbsolutePath(string path)
     {
+        if (File.Exists(path))
+            return path;
         var pathWithExtensions = GetRelativePathWithExtensions(path);
+        
         return GetFirstExisting(pathWithExtensions);
     }
 
