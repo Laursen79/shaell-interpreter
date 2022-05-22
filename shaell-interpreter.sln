@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShaellLang.Test", "ShaellLa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipeHelper", "PipeHelper\PipeHelper.csproj", "{D949C7D9-AE01-4417-A3F1-3543312BC3A4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShaellLang.Test.Unit", "ShaellLang.Test.Unit\ShaellLang.Test.Unit.csproj", "{38843CA3-CFA1-4D16-8E9D-01BD111DFAE5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,5 +74,17 @@ Global
 		{D949C7D9-AE01-4417-A3F1-3543312BC3A4}.Release|x64.Build.0 = Release|Any CPU
 		{D949C7D9-AE01-4417-A3F1-3543312BC3A4}.Release|x86.ActiveCfg = Release|Any CPU
 		{D949C7D9-AE01-4417-A3F1-3543312BC3A4}.Release|x86.Build.0 = Release|Any CPU
+		{38843CA3-CFA1-4D16-8E9D-01BD111DFAE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38843CA3-CFA1-4D16-8E9D-01BD111DFAE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38843CA3-CFA1-4D16-8E9D-01BD111DFAE5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{38843CA3-CFA1-4D16-8E9D-01BD111DFAE5}.Debug|x64.Build.0 = Debug|Any CPU
+		{38843CA3-CFA1-4D16-8E9D-01BD111DFAE5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{38843CA3-CFA1-4D16-8E9D-01BD111DFAE5}.Debug|x86.Build.0 = Debug|Any CPU
+		{38843CA3-CFA1-4D16-8E9D-01BD111DFAE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38843CA3-CFA1-4D16-8E9D-01BD111DFAE5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38843CA3-CFA1-4D16-8E9D-01BD111DFAE5}.Release|x64.ActiveCfg = Release|Any CPU
+		{38843CA3-CFA1-4D16-8E9D-01BD111DFAE5}.Release|x64.Build.0 = Release|Any CPU
+		{38843CA3-CFA1-4D16-8E9D-01BD111DFAE5}.Release|x86.ActiveCfg = Release|Any CPU
+		{38843CA3-CFA1-4D16-8E9D-01BD111DFAE5}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
